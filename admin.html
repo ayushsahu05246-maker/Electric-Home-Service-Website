@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal - Electric Home Service</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <header class="border-b border-slate-800 bg-slate-900/90">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">Admin Dashboard</h1>
+      <div class="flex items-center gap-3">
+        <a href="/" class="text-sm text-blue-300 hover:text-blue-200">Customer Site</a>
+        <button id="logoutBtn" class="hidden text-sm bg-slate-800 border border-slate-700 rounded px-3 py-1.5">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <section id="loginCard" class="max-w-sm bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <h2 class="text-lg font-semibold mb-3">Admin Login</h2>
+      <label class="text-sm text-slate-300">Portal PIN</label>
+      <input id="pinInput" type="password" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" placeholder="Enter admin PIN" />
+      <button id="loginBtn" class="w-full mt-3 bg-blue-600 hover:bg-blue-500 rounded py-2.5 font-medium">Sign In</button>
+      <p id="loginMsg" class="text-sm mt-2 text-slate-400"></p>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="grid sm:grid-cols-4 gap-3 mb-5">
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-4"><p class="text-xs text-slate-400">Total</p><p id="stTotal" class="text-2xl font-semibold">0</p></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-4"><p class="text-xs text-slate-400">Pending</p><p id="stPending" class="text-2xl font-semibold text-amber-400">0</p></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-4"><p class="text-xs text-slate-400">In Progress</p><p id="stProgress" class="text-2xl font-semibold text-blue-400">0</p></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-4"><p class="text-xs text-slate-400">Completed</p><p id="stCompleted" class="text-2xl font-semibold text-emerald-400">0</p></div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 overflow-auto">
+        <table class="w-full text-sm">
+          <thead class="text-slate-300">
+            <tr class="border-b border-slate-800">
+              <th class="text-left py-2 pr-3">Booking</th>
+              <th class="text-left py-2 pr-3">Customer</th>
+              <th class="text-left py-2 pr-3">Address</th>
+              <th class="text-left py-2 pr-3">Location</th>
+              <th class="text-left py-2 pr-3">Created</th>
+              <th class="text-left py-2 pr-3">Status</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p id="dashMsg" class="text-xs text-slate-400 mt-2"></p>
+    </section>
+  </main>
+
+  <script>
+    const statusOptions = ["pending", "in_progress", "completed", "cancelled"];
+
+    async function checkAuth() {
+      try {
+        const r = await fetch("/api/admin/me");
+        if (!r.ok) throw new Error();
+        showDashboard();
+      } catch {
+        showLogin();
+      }
+    }
+
+    function showLogin() {
+      document.getElementById("loginCard").classList.remove("hidden");
+      document.getElementById("dashboard").classList.add("hidden");
+      document.getElementById("logoutBtn").classList.add("hidden");
+    }
+
+    function showDashboard() {
+      document.getElementById("loginCard").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+      document.getElementById("logoutBtn").classList.remove("hidden");
+      loadDashboard();
+    }
+
+    async function login() {
+      const pin = document.getElementById("pinInput").value.trim();
+      const msg = document.getElementById("loginMsg");
+      msg.textContent = "Signing in...";
+      try {
+        const r = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pin })
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.detail || "Login failed");
+        msg.textContent = "Login successful.";
+        showDashboard();
+      } catch (e) {
+        msg.textContent = e.message;
+      }
+    }
+
+    async function loadDashboard() {
+      const msg = document.getElementById("dashMsg");
+      msg.textContent = "Loading bookings...";
+      try {
+        const [statsResp, bookingsResp] = await Promise.all([
+          fetch("/api/bookings/stats"),
+          fetch("/api/bookings")
+        ]);
+        const stats = await statsResp.json();
+        const bookingsData = await bookingsResp.json();
+        if (!statsResp.ok || !bookingsResp.ok) throw new Error("Could not load admin data");
+
+        document.getElementById("stTotal").textContent = stats.total || 0;
+        document.getElementById("stPending").textContent = stats.pending || 0;
+        document.getElementById("stProgress").textContent = stats.in_progress || 0;
+        document.getElementById("stCompleted").textContent = stats.completed || 0;
+        renderRows(bookingsData.bookings || []);
+        msg.textContent = `Showing ${bookingsData.bookings?.length || 0} bookings`;
+      } catch (e) {
+        msg.textContent = e.message;
+      }
+    }
+
+    function renderRows(bookings) {
+      const rows = document.getElementById("rows");
+      rows.innerHTML = bookings.map((b) => {
+        const mapLink = b.latitude && b.longitude
+          ? `<a class="text-blue-300 hover:text-blue-200" target="_blank" rel="noreferrer" href="https://www.google.com/maps?q=${b.latitude},${b.longitude}">Open Map</a>`
+          : `<span class="text-slate-500">N/A</span>`;
+        const statusSelect = `<select data-id="${b.booking_id}" class="statusSel bg-slate-800 border border-slate-700 rounded px-2 py-1">
+          ${statusOptions.map((s) => `<option value="${s}" ${s === b.status ? "selected" : ""}>${s}</option>`).join("")}
+        </select>`;
+        return `<tr class="border-b border-slate-800">
+          <td class="py-2 pr-3">${b.booking_id}<br><span class="text-slate-500">${b.service_title || "-"}</span></td>
+          <td class="py-2 pr-3">${b.customer_name || "-"}<br><span class="text-slate-500">${b.phone || "-"}</span></td>
+          <td class="py-2 pr-3">${b.address || "-"}<br><span class="text-slate-500">${b.city || ""} ${b.pincode || ""}</span></td>
+          <td class="py-2 pr-3">${mapLink}</td>
+          <td class="py-2 pr-3">${(b.created_at || "").replace("T"," ").slice(0,16)}</td>
+          <td class="py-2 pr-3">${statusSelect}</td>
+        </tr>`;
+      }).join("");
+
+      document.querySelectorAll(".statusSel").forEach((el) => {
+        el.addEventListener("change", async (ev) => {
+          const bookingId = ev.target.getAttribute("data-id");
+          const newStatus = ev.target.value;
+          await fetch(`/api/bookings/${bookingId}/status`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus })
+          });
+          loadDashboard();
+        });
+      });
+    }
+
+    async function logout() {
+      await fetch("/api/admin/logout", { method: "POST" });
+      showLogin();
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", login);
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+    checkAuth();
+  </script>
+</body>
+</html>

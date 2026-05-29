@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Electric Home Service - Book Now</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <header class="border-b border-slate-800 bg-slate-900/90">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">Electric Home Service</h1>
+      <a href="/admin" class="text-sm text-blue-300 hover:text-blue-200">Admin Portal</a>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8 grid md:grid-cols-3 gap-6">
+    <section class="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6">
+      <h2 class="text-2xl font-semibold mb-2">Book Electrical Service</h2>
+      <p class="text-slate-400 mb-6">Same-day technicians for fan repair, wiring, MCB, AC, geyser and emergency jobs.</p>
+
+      <form id="bookingForm" class="grid sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label class="text-sm text-slate-300">Service</label>
+          <select id="service_id" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" required></select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">Full name</label>
+          <input id="customer_name" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">Phone</label>
+          <input id="phone" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">Email (optional)</label>
+          <input id="email" type="email" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" />
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">Preferred time</label>
+          <input id="preferred_time" placeholder="Today 6:00 PM" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-sm text-slate-300">Address</label>
+          <textarea id="address" rows="2" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" required></textarea>
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">City</label>
+          <input id="city" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" />
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">Pincode</label>
+          <input id="pincode" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="text-sm text-slate-300">Issue notes</label>
+          <textarea id="notes" rows="2" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded p-2.5" placeholder="Short circuit in kitchen, fan not rotating, etc."></textarea>
+        </div>
+        <div class="sm:col-span-2 border border-slate-700 rounded-lg p-4">
+          <div class="flex flex-wrap gap-3 items-center">
+            <button type="button" id="locBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded">Capture Current Location</button>
+            <a id="mapsLink" target="_blank" rel="noreferrer" class="text-blue-300 text-sm hidden">Open in Google Maps</a>
+          </div>
+          <p id="locText" class="text-xs text-slate-400 mt-2">Location not captured yet.</p>
+          <div class="grid sm:grid-cols-2 gap-3 mt-3">
+            <input id="manualLat" type="number" step="any" placeholder="Latitude (manual)" class="bg-slate-800 border border-slate-700 rounded p-2.5" />
+            <input id="manualLng" type="number" step="any" placeholder="Longitude (manual)" class="bg-slate-800 border border-slate-700 rounded p-2.5" />
+          </div>
+          <button type="button" id="manualLocBtn" class="mt-3 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded">Use Manual Coordinates</button>
+          <iframe id="mapFrame" class="w-full h-56 mt-3 rounded border border-slate-700 hidden" loading="lazy"></iframe>
+        </div>
+        <div class="sm:col-span-2">
+          <button class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded">Confirm Booking</button>
+        </div>
+      </form>
+      <p id="result" class="mt-4 text-sm"></p>
+    </section>
+
+    <aside class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+      <h3 class="font-semibold mb-3">Why choose us</h3>
+      <ul class="space-y-2 text-sm text-slate-300">
+        <li>- Verified electricians</li>
+        <li>- Transparent pricing</li>
+        <li>- Fast doorstep support</li>
+        <li>- Emergency 24x7 service</li>
+      </ul>
+      <div class="mt-6 p-4 rounded-lg bg-slate-800 border border-slate-700">
+        <p class="text-sm text-slate-300">Need urgent help?</p>
+        <p class="text-lg font-semibold" id="whatsappLabel">Loading...</p>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const state = { services: [], latitude: null, longitude: null };
+
+    async function loadServices() {
+      const resp = await fetch("/api/services");
+      const data = await resp.json();
+      state.services = data.services || [];
+      const select = document.getElementById("service_id");
+      select.innerHTML = state.services.map(s => `<option value="${s.id}">${s.title} (from INR ${s.price_from || "N/A"})</option>`).join("");
+      document.getElementById("whatsappLabel").textContent = data.whatsapp ? `+91 ${data.whatsapp}` : "Contact support";
+    }
+
+    function updateMap() {
+      const locText = document.getElementById("locText");
+      const mapsLink = document.getElementById("mapsLink");
+      const mapFrame = document.getElementById("mapFrame");
+      if (state.latitude == null || state.longitude == null) return;
+      const query = `${state.latitude},${state.longitude}`;
+      const mapsUrl = `https://www.google.com/maps?q=${query}`;
+      locText.textContent = `Location captured: ${query}`;
+      mapsLink.href = mapsUrl;
+      mapsLink.classList.remove("hidden");
+      mapFrame.src = `https://maps.google.com/maps?q=${query}&z=15&output=embed`;
+      mapFrame.classList.remove("hidden");
+    }
+
+    document.getElementById("locBtn").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        document.getElementById("locText").textContent = "Geolocation is not supported on this browser.";
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          state.latitude = Number(pos.coords.latitude.toFixed(6));
+          state.longitude = Number(pos.coords.longitude.toFixed(6));
+          updateMap();
+        },
+        (err) => {
+          let message = "Unable to fetch location. Please allow location access.";
+          if (err && err.code === 1) message = "Location permission denied. Allow location in browser settings.";
+          if (err && err.code === 2) message = "Location unavailable. Try again or enter manual coordinates.";
+          if (err && err.code === 3) message = "Location request timed out. Try again or enter manual coordinates.";
+          document.getElementById("locText").textContent = message;
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    document.getElementById("manualLocBtn").addEventListener("click", () => {
+      const lat = parseFloat(document.getElementById("manualLat").value);
+      const lng = parseFloat(document.getElementById("manualLng").value);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) {
+        document.getElementById("locText").textContent = "Please enter valid latitude and longitude values.";
+        return;
+      }
+      state.latitude = Number(lat.toFixed(6));
+      state.longitude = Number(lng.toFixed(6));
+      updateMap();
+    });
+
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const serviceId = document.getElementById("service_id").value;
+      const service = state.services.find((s) => s.id === serviceId);
+      const payload = {
+        customer_name: document.getElementById("customer_name").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        email: document.getElementById("email").value.trim() || undefined,
+        service_id: serviceId,
+        service_title: service ? service.title : serviceId,
+        address: document.getElementById("address").value.trim(),
+        city: document.getElementById("city").value.trim() || undefined,
+        pincode: document.getElementById("pincode").value.trim() || undefined,
+        preferred_time: document.getElementById("preferred_time").value.trim() || undefined,
+        notes: document.getElementById("notes").value.trim() || undefined,
+        latitude: state.latitude,
+        longitude: state.longitude
+      };
+
+      const result = document.getElementById("result");
+      result.textContent = "Submitting booking...";
+      result.className = "mt-4 text-sm text-slate-300";
+
+      try {
+        const resp = await fetch("/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || "Booking failed");
+        result.textContent = `Booking successful. Your booking ID: ${data.booking_id}`;
+        result.className = "mt-4 text-sm text-emerald-400";
+        e.target.reset();
+      } catch (err) {
+        result.textContent = `Error: ${err.message}`;
+        result.className = "mt-4 text-sm text-red-400";
+      }
+    });
+
+    loadServices();
+  </script>
+</body>
+</html>
