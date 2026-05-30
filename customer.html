@@ -3,478 +3,985 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EVOLT - Electric Home Services | Book Now</title>
+  <title>One Day Electric — Home Services</title>
   <meta name="description" content="Book verified electricians for fan repair, wiring, AC service, MCB and emergency 24x7 at home. Fast, affordable, doorstep service." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #030712; }
-    h1,h2,h3,h4 { font-family: 'Outfit', sans-serif; }
-
-    /* Glass card */
-    .card {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 1.25rem;
-      backdrop-filter: blur(12px);
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #11111a;
+      --bg3: #181825;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --accent: #f5a623;
+      --accent2: #ff6b35;
+      --accent3: #ffd166;
+      --blue: #4f8ef7;
+      --green: #2ecc71;
+      --red: #ff4757;
+      --text: #f0eeea;
+      --text2: #9590a8;
+      --text3: #6b6680;
+      --radius: 16px;
+      --radius-sm: 10px;
     }
 
-    /* Gradient accent */
-    .gradient-text {
-      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 60%, #22d3ee 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* Service cards */
+    h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; }
+
+    /* ---- ANIMATED BACKGROUND ---- */
+    .bg-noise {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+    .bg-orb {
+      position: fixed; pointer-events: none; z-index: 0;
+      border-radius: 50%; filter: blur(100px); opacity: 0.12;
+    }
+    .orb1 { width: 600px; height: 600px; background: var(--accent); top: -200px; right: -100px; animation: orbFloat 12s ease-in-out infinite; }
+    .orb2 { width: 400px; height: 400px; background: var(--blue); bottom: -100px; left: -100px; animation: orbFloat 15s ease-in-out infinite reverse; }
+    .orb3 { width: 300px; height: 300px; background: var(--accent2); top: 40%; left: 30%; animation: orbFloat 10s ease-in-out infinite 3s; opacity: 0.07; }
+
+    @keyframes orbFloat {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(30px,-20px) scale(1.05); }
+      66% { transform: translate(-20px,15px) scale(0.97); }
+    }
+
+    /* ---- HEADER ---- */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 20px rgba(245,166,35,0.3);
+    }
+    .logo-text { line-height: 1; }
+    .logo-text strong { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); display: block; }
+    .logo-text span { font-size: 10px; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .nav-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 999px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,0.04);
+      font-size: 12px; font-weight: 600; color: var(--text2);
+      text-decoration: none; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(245,166,35,0.06); }
+
+    .status-dot {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 999px;
+      background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.2);
+      font-size: 11px; font-weight: 600; color: var(--green);
+    }
+    .status-dot::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* ---- HERO ---- */
+    .hero {
+      position: relative; z-index: 10;
+      max-width: 1100px; margin: 0 auto;
+      padding: 72px 24px 48px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 999px;
+      background: rgba(245,166,35,0.1);
+      border: 1px solid rgba(245,166,35,0.25);
+      font-size: 12px; font-weight: 600; color: var(--accent);
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+    .hero h1 .line2 {
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 17px; color: var(--text2); max-width: 520px; line-height: 1.6;
+      margin-bottom: 36px;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+
+    .hero-stats {
+      display: flex; gap: 32px; flex-wrap: wrap;
+      animation: fadeUp 0.6s ease 0.3s both;
+    }
+    .stat { display: flex; flex-direction: column; gap: 2px; }
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--text); }
+    .stat-label { font-size: 12px; color: var(--text3); font-weight: 500; }
+
+    /* ---- TICKER ---- */
+    .ticker-wrap {
+      position: relative; z-index: 10;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      overflow: hidden; padding: 12px 0;
+    }
+    .ticker-track {
+      display: flex; gap: 48px;
+      animation: ticker 30s linear infinite;
+      width: max-content;
+    }
+    .ticker-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 500; color: var(--text3);
+      white-space: nowrap;
+    }
+    .ticker-item .dot { color: var(--accent); font-size: 18px; }
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* ---- MAIN LAYOUT ---- */
+    main {
+      position: relative; z-index: 10;
+      max-width: 1100px; margin: 0 auto;
+      padding: 48px 24px;
+      display: flex; flex-direction: column; gap: 56px;
+    }
+
+    /* ---- SECTION HEADERS ---- */
+    .section-header { margin-bottom: 24px; }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .section-tag::before { content: ''; width: 20px; height: 2px; background: var(--accent); border-radius: 2px; }
+    .section-title { font-size: 26px; font-weight: 800; color: var(--text); }
+
+    /* ---- SERVICE GRID ---- */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
     .service-card {
-      background: rgba(15,23,42,0.7);
-      border: 1.5px solid rgba(255,255,255,0.06);
-      border-radius: 1rem;
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
       cursor: pointer;
-      transition: border-color .2s, background .2s, box-shadow .2s;
+      transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative; overflow: hidden;
     }
-    .service-card:hover {
-      border-color: rgba(96,165,250,0.4);
-      background: rgba(37,99,235,0.07);
-      box-shadow: 0 4px 20px rgba(37,99,235,0.12);
+    .service-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(245,166,35,0.07), transparent);
+      opacity: 0; transition: opacity 0.2s;
     }
+    .service-card:hover { border-color: rgba(245,166,35,0.4); transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+    .service-card:hover::before { opacity: 1; }
     .service-card.selected {
-      border-color: #3b82f6;
-      background: rgba(37,99,235,0.13);
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.18), 0 4px 20px rgba(37,99,235,0.18);
+      border-color: var(--accent);
+      background: rgba(245,166,35,0.06);
+      box-shadow: 0 0 0 3px rgba(245,166,35,0.15), 0 12px 32px rgba(0,0,0,0.3);
+      transform: translateY(-3px);
+    }
+    .service-card.selected::before { opacity: 1; }
+
+    .svc-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 14px;
+      transition: transform 0.2s;
+    }
+    .service-card:hover .svc-icon, .service-card.selected .svc-icon { transform: scale(1.1); }
+    .svc-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .svc-desc { font-size: 12px; color: var(--text3); line-height: 1.5; margin-bottom: 14px; }
+    .svc-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
+    .svc-price { font-size: 13px; font-weight: 700; color: var(--accent); }
+    .svc-time { font-size: 11px; color: var(--text3); }
+
+    .selected-check {
+      position: absolute; top: 12px; right: 12px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent); color: #000;
+      display: none; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+    }
+    .service-card.selected .selected-check { display: flex; }
+
+    /* ---- BOOKING FORM ---- */
+    .booking-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media(max-width:768px) { .booking-layout { grid-template-columns: 1fr; } }
+
+    .form-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
     }
 
-    /* Inputs */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form-full { grid-column: 1/-1; }
+
+    .field-label {
+      display: block; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text3); margin-bottom: 8px;
+    }
+
     .field {
-      background: rgba(30,41,59,0.5);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: .75rem;
-      color: #e2e8f0;
-      transition: border-color .2s, box-shadow .2s;
-      width: 100%;
-      padding: .75rem 1rem;
-      font-size: .875rem;
-      outline: none;
+      width: 100%; padding: 13px 16px;
+      background: var(--bg3); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      outline: none; transition: all 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
     }
-    .field:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
-    }
-    .field::placeholder { color: #475569; }
+    .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,166,35,0.12); }
+    .field::placeholder { color: var(--text3); }
+    select.field { cursor: pointer; }
+    textarea.field { resize: vertical; min-height: 90px; }
 
-    /* Primary button */
-    .btn-primary {
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
-      color: #fff;
-      font-weight: 700;
-      padding: .875rem 1.5rem;
-      border-radius: .875rem;
-      border: none;
-      cursor: pointer;
-      transition: opacity .2s, transform .15s;
-      display: flex; align-items: center; justify-content: center; gap: .5rem;
-      font-size: .95rem; letter-spacing: .01em;
-    }
-    .btn-primary:hover { opacity: .92; transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(0); opacity: 1; }
+    .field-icon-wrap { position: relative; }
+    .field-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--text3); }
+    .field-icon-wrap .field { padding-left: 42px; }
 
-    .btn-emerald {
-      background: #059669;
-      color: #fff;
-      font-weight: 600;
-      padding: .6rem 1.1rem;
-      border-radius: .75rem;
-      border: none;
-      cursor: pointer;
-      transition: background .2s;
-      display: flex; align-items: center; gap: .4rem;
-      font-size: .8rem;
+    /* Time slots */
+    .time-slots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .time-slot {
+      padding: 8px 14px; border-radius: 999px;
+      border: 1.5px solid var(--border); background: var(--bg3);
+      font-size: 12px; font-weight: 600; color: var(--text2);
+      cursor: pointer; transition: all 0.15s;
     }
-    .btn-emerald:hover { background: #047857; }
+    .time-slot:hover { border-color: var(--accent); color: var(--accent); }
+    .time-slot.active { background: rgba(245,166,35,0.12); border-color: var(--accent); color: var(--accent); }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #030712; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-
-    /* Status pill */
-    .badge {
-      display: inline-flex; align-items: center; gap: .3rem;
-      font-size: .7rem; font-weight: 700; padding: .25rem .6rem; border-radius: 999px;
+    /* Location panel */
+    .loc-panel {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 18px;
     }
-    .badge-blue { background: rgba(59,130,246,.15); color: #93c5fd; border: 1px solid rgba(59,130,246,.2); }
+    .loc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .loc-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .loc-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    .btn-loc {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 16px; border-radius: 999px;
+      background: rgba(245,166,35,0.12); border: 1px solid rgba(245,166,35,0.3);
+      color: var(--accent); font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-loc:hover { background: rgba(245,166,35,0.2); }
+
+    .loc-status {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 12px; color: var(--text3);
+    }
+    .loc-indicator { display: flex; align-items: center; gap: 8px; }
+    .loc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); }
+    .loc-dot.active { background: var(--green); animation: pulse 2s ease infinite; }
+    #mapFrameContainer { margin-top: 12px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    #mapFrame { width: 100%; height: 180px; display: block; }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%; padding: 16px 24px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-family: 'Syne', sans-serif;
+      font-size: 15px; font-weight: 800;
+      border: none; border-radius: var(--radius-sm);
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: 0.02em;
+      box-shadow: 0 8px 24px rgba(245,166,35,0.25);
+      position: relative; overflow: hidden;
+    }
+    .btn-submit::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(255,255,255,0); transition: background 0.2s;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(245,166,35,0.35); }
+    .btn-submit:hover::after { background: rgba(255,255,255,0.08); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ---- SIDEBAR ---- */
+    .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+    .sidebar-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px;
+    }
+
+    /* Emergency */
+    .emergency-card {
+      background: linear-gradient(135deg, rgba(255,71,87,0.08), rgba(255,107,53,0.04));
+      border-color: rgba(255,71,87,0.2);
+    }
+    .emergency-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .emergency-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,71,87,0.15); border: 1px solid rgba(255,71,87,0.3);
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .emergency-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--text); }
+    .emergency-tag { font-size: 10px; color: var(--red); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .emergency-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 16px; }
+
+    .btn-whatsapp {
+      width: 100%; padding: 13px;
+      background: #25D366; color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.2s; text-decoration: none;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.2);
+    }
+    .btn-whatsapp:hover { background: #20bb5a; transform: translateY(-1px); }
+
+    /* Guarantees */
+    .guarantee-list { display: flex; flex-direction: column; gap: 14px; }
+    .guarantee-item { display: flex; align-items: flex-start; gap: 12px; }
+    .guarantee-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.2);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .guarantee-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .guarantee-desc { font-size: 11px; color: var(--text3); line-height: 1.5; }
+
+    /* Price estimator */
+    .price-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 14px; }
+    .price-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .price-row:last-child { border: none; padding-bottom: 0; }
+    .price-label { font-size: 12px; color: var(--text3); }
+    .price-val { font-size: 13px; font-weight: 700; color: var(--text); }
+    .price-val.accent { color: var(--accent); }
+
+    /* ---- FAQ ---- */
+    .faq-list { display: flex; flex-direction: column; gap: 8px; max-width: 720px; }
+    .faq-item {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); overflow: hidden;
+    }
+    .faq-q {
+      width: 100%; padding: 18px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: none; border: none; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; text-align: left; transition: color 0.2s;
+    }
+    .faq-q:hover { color: var(--accent); }
+    .faq-arrow { font-size: 18px; transition: transform 0.25s; color: var(--text3); flex-shrink: 0; }
+    .faq-item.open .faq-arrow { transform: rotate(45deg); color: var(--accent); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.2s;
+      font-size: 13px; color: var(--text2); line-height: 1.7;
+      padding: 0 20px;
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding-bottom: 18px; }
+
+    /* ---- RESULT ---- */
+    #result {
+      display: none; margin-top: 20px;
+      padding: 20px; border-radius: var(--radius-sm);
+      text-align: center;
+    }
+    #result.show { display: block; animation: fadeUp 0.4s ease; }
+    #result.success { background: rgba(46,204,113,0.06); border: 1px solid rgba(46,204,113,0.25); }
+    #result.error { background: rgba(255,71,87,0.06); border: 1px solid rgba(255,71,87,0.25); }
+
+    /* ---- FOOTER ---- */
+    footer {
+      position: relative; z-index: 10;
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 12px; color: var(--text3);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ---- ANIMATIONS ---- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- UTILITIES ---- */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+    .flex-between { display: flex; align-items: center; justify-content: space-between; }
+
+    @media(max-width: 600px) {
+      .hero { padding: 48px 20px 32px; }
+      .form-card { padding: 24px 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 20px; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      main { padding: 32px 20px; gap: 40px; }
+    }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col">
+<body>
 
-  <!-- Ambient background blobs -->
-  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-    <div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-blue-900/15 blur-3xl"></div>
-    <div class="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-cyan-900/10 blur-3xl"></div>
-  </div>
+<div class="bg-noise"></div>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+<div class="bg-orb orb3"></div>
 
-  <!-- HEADER -->
-  <header class="relative z-10 sticky top-0 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30">
-          <i data-lucide="zap" class="w-5 h-5 text-white"></i>
-        </div>
-        <div>
-          <p class="font-black text-xl text-white leading-none">EVOLT</p>
-          <p class="text-[10px] font-semibold text-blue-400 tracking-widest leading-none uppercase">Electric</p>
-        </div>
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">
+        <strong>One Day Electric</strong>
+        <span>Home Services</span>
       </div>
-      <a href="/admin" class="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 px-3 py-2 rounded-xl transition">
-        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-blue-400"></i> Admin
-      </a>
+    </a>
+    <div class="header-right">
+      <div class="status-dot">Available Now</div>
+      <a href="/admin" class="nav-pill">🔐 Admin</a>
     </div>
-  </header>
+  </div>
+</header>
 
-  <!-- HERO -->
-  <section class="relative z-10 max-w-6xl mx-auto px-5 pt-10 pb-4 text-center">
-    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-semibold text-blue-400 mb-5">
-      <i data-lucide="sparkles" class="w-3 h-3"></i> Same-day doorstep electricians
-    </span>
-    <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-3">
-      Verified Electricians, <span class="gradient-text">On Demand.</span>
-    </h1>
-    <p class="text-slate-400 text-sm md:text-base max-w-xl mx-auto">
-      Fan repair, wiring, AC service, MCB, geyser, emergency 24×7 — book in under 2 minutes.
-    </p>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">⚡ Same-day doorstep electricians · Kanpur & nearby</div>
+  <h1>Your Home Deserves<br><span class="line2">Expert Electrical Care.</span></h1>
+  <p class="hero-sub">Fan repair, wiring, AC service, MCB, geyser & emergency 24×7 — book a verified technician in under 2 minutes.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">500+</span>
+      <span class="stat-label">Jobs Completed</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4.9★</span>
+      <span class="stat-label">Customer Rating</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">30min</span>
+      <span class="stat-label">Avg. Arrival</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">24×7</span>
+      <span class="stat-label">Emergency</span>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker">
+    <span class="ticker-item"><span class="dot">⚡</span> Fan Repair & Installation</span>
+    <span class="ticker-item"><span class="dot">⚡</span> AC Service & Gas Refill</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Wiring & Rewiring</span>
+    <span class="ticker-item"><span class="dot">⚡</span> MCB / Fuse Box Repair</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Geyser Installation</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Emergency 24×7</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Switch & Socket Repair</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Inverter & Battery</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Fan Repair & Installation</span>
+    <span class="ticker-item"><span class="dot">⚡</span> AC Service & Gas Refill</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Wiring & Rewiring</span>
+    <span class="ticker-item"><span class="dot">⚡</span> MCB / Fuse Box Repair</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Geyser Installation</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Emergency 24×7</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Switch & Socket Repair</span>
+    <span class="ticker-item"><span class="dot">⚡</span> Inverter & Battery</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- STEP 1: SERVICES -->
+  <section>
+    <div class="section-header">
+      <div class="section-tag">Step 01</div>
+      <div class="section-title">Choose a Service</div>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">👆 Tap any service to select &amp; jump to the booking form</p>
+    <div class="services-grid" id="servicesGrid">
+      <div style="grid-column:1/-1;padding:48px;text-align:center;color:var(--text3);font-size:14px;">
+        <div style="width:28px;height:28px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
+        Loading services…
+      </div>
+    </div>
   </section>
 
-  <main class="relative z-10 max-w-6xl mx-auto px-5 py-6 flex flex-col gap-8 flex-grow">
+  <!-- STEP 2: BOOKING FORM -->
+  <section>
+    <div class="section-header">
+      <div class="section-tag">Step 02</div>
+      <div class="section-title">Book Your Technician</div>
+    </div>
 
-    <!-- STEP 1: Service Grid -->
-    <section>
-      <h2 class="text-lg font-bold text-white mb-1">1. Choose a Service</h2>
-      <p class="text-xs text-slate-400 mb-4">Click a card to select your required service</p>
-      <div id="servicesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        <div class="col-span-full py-10 flex flex-col items-center text-slate-500 text-sm gap-2">
-          <div class="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          Loading services…
-        </div>
-      </div>
-    </section>
-
-    <!-- STEP 2: Booking Form + Sidebar -->
-    <section class="grid md:grid-cols-3 gap-6 items-start">
+    <div class="booking-layout">
 
       <!-- FORM -->
-      <div class="md:col-span-2 card p-6 md:p-8">
-        <h2 class="text-lg font-bold text-white mb-1">2. Your Details</h2>
-        <p class="text-xs text-slate-400 mb-6">Fill in your contact info, address and preferred time</p>
+      <div class="form-card">
+        <form id="bookingForm" class="form-grid">
 
-        <form id="bookingForm" class="grid sm:grid-cols-2 gap-4">
-          <!-- Service select (synced to cards) -->
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Selected Service</label>
+          <!-- Service -->
+          <div class="form-full">
+            <label class="field-label">Selected Service</label>
             <select id="service_id" class="field" required></select>
           </div>
 
+          <!-- Name -->
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Full Name</label>
-            <div class="relative">
-              <input id="customer_name" type="text" class="field pl-9" placeholder="Ayush Sahu" required />
-              <i data-lucide="user" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
+            <label class="field-label">Full Name</label>
+            <div class="field-icon-wrap">
+              <span class="field-icon">👤</span>
+              <input id="customer_name" type="text" class="field" placeholder="Your full name" required />
             </div>
           </div>
 
+          <!-- Phone -->
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Phone</label>
-            <div class="relative">
-              <input id="phone" type="tel" class="field pl-9" placeholder="9876543210" required />
-              <i data-lucide="phone" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
+            <label class="field-label">Phone Number</label>
+            <div class="field-icon-wrap">
+              <span class="field-icon">📞</span>
+              <input id="phone" type="tel" class="field" placeholder="9876543210" required />
             </div>
           </div>
 
+          <!-- Email -->
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Email (optional)</label>
-            <div class="relative">
-              <input id="email" type="email" class="field pl-9" placeholder="name@email.com" />
-              <i data-lucide="mail" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
+            <label class="field-label">Email <span style="color:var(--text3);font-size:10px;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <div class="field-icon-wrap">
+              <span class="field-icon">✉️</span>
+              <input id="email" type="email" class="field" placeholder="name@email.com" />
             </div>
           </div>
 
+          <!-- Preferred time -->
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Preferred Time</label>
-            <div class="relative">
-              <input id="preferred_time" type="text" class="field pl-9" placeholder="Today 6:00 PM, ASAP…" />
-              <i data-lucide="calendar" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
+            <label class="field-label">Preferred Time</label>
+            <div class="field-icon-wrap">
+              <span class="field-icon">🕐</span>
+              <input id="preferred_time" type="text" class="field" placeholder="e.g. Today 6 PM" />
+            </div>
+            <div class="time-slots" style="margin-top:10px;">
+              <span class="time-slot" data-val="ASAP">🚨 ASAP</span>
+              <span class="time-slot" data-val="Today Morning">🌅 Morning</span>
+              <span class="time-slot" data-val="Today Evening">🌆 Evening</span>
+              <span class="time-slot" data-val="Tomorrow">📅 Tomorrow</span>
             </div>
           </div>
 
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Address</label>
-            <div class="relative">
-              <textarea id="address" rows="2" class="field pl-9 resize-none" placeholder="Flat, building, street name…" required></textarea>
-              <i data-lucide="map-pin" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
+          <!-- Address -->
+          <div class="form-full">
+            <label class="field-label">Address</label>
+            <div class="field-icon-wrap">
+              <span class="field-icon" style="top:18px;transform:none;">📍</span>
+              <textarea id="address" class="field" placeholder="Flat, building, street name…" rows="2" required></textarea>
             </div>
           </div>
 
+          <!-- City & Pincode -->
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">City</label>
-            <input id="city" type="text" class="field" placeholder="Mumbai" />
+            <label class="field-label">City</label>
+            <input id="city" type="text" class="field" placeholder="Kanpur" />
           </div>
-
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Pincode</label>
-            <input id="pincode" type="text" class="field" placeholder="400001" />
+            <label class="field-label">Pincode</label>
+            <input id="pincode" type="text" class="field" placeholder="208001" />
           </div>
 
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Issue Details</label>
-            <textarea id="notes" rows="2" class="field resize-none" placeholder="Describe the issue briefly…"></textarea>
+          <!-- Notes -->
+          <div class="form-full">
+            <label class="field-label">Issue Details <span style="color:var(--text3);font-size:10px;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <textarea id="notes" class="field" placeholder="Describe the issue briefly… (e.g. fan makes noise, tripping MCB)" rows="2"></textarea>
           </div>
 
-          <!-- GPS Location panel -->
-          <div class="sm:col-span-2 bg-slate-900/60 border border-white/5 rounded-xl p-4 flex flex-col gap-3">
-            <div class="flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <p class="text-sm font-semibold text-white">Share GPS Location</p>
-                <p class="text-xs text-slate-400">Helps technician reach faster</p>
-              </div>
-              <button type="button" id="locBtn" class="btn-emerald">
-                <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i> Get Location
-              </button>
-            </div>
-
-            <div class="flex items-center justify-between bg-slate-950 border border-white/5 rounded-lg px-3 py-2 text-xs">
-              <span id="locText" class="text-slate-400 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-slate-600"></span> Not shared yet
-              </span>
-              <a id="mapsLink" href="#" target="_blank" class="text-blue-400 font-semibold hidden hover:text-blue-300">View Map →</a>
-            </div>
-
-            <!-- Manual coords -->
-            <details class="group">
-              <summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 flex items-center gap-1 select-none">
-                <i data-lucide="chevron-right" class="w-3 h-3 transition group-open:rotate-90"></i>
-                Enter coordinates manually
-              </summary>
-              <div class="mt-2 grid grid-cols-2 gap-2">
+          <!-- GPS -->
+          <div class="form-full">
+            <div class="loc-panel">
+              <div class="loc-header">
                 <div>
-                  <label class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Latitude</label>
-                  <input id="manualLat" type="number" step="any" class="field mt-1 text-xs" placeholder="19.0760" />
+                  <div class="loc-title">📡 Share GPS Location</div>
+                  <div class="loc-sub">Helps technician reach faster</div>
                 </div>
-                <div>
-                  <label class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Longitude</label>
-                  <input id="manualLng" type="number" step="any" class="field mt-1 text-xs" placeholder="72.8777" />
-                </div>
-                <button type="button" id="manualLocBtn" class="col-span-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-2 rounded-lg transition">Apply Coordinates</button>
+                <button type="button" id="locBtn" class="btn-loc">📍 Get Location</button>
               </div>
-            </details>
-
-            <div id="mapFrameContainer" class="hidden rounded-xl overflow-hidden border border-white/10">
-              <iframe id="mapFrame" class="w-full h-48" loading="lazy"></iframe>
+              <div class="loc-status">
+                <div class="loc-indicator">
+                  <span class="loc-dot" id="locDot"></span>
+                  <span id="locText">Not shared yet</span>
+                </div>
+                <a id="mapsLink" href="#" target="_blank" style="font-size:12px;color:var(--accent);font-weight:700;display:none;">View Map →</a>
+              </div>
+              <div id="mapFrameContainer" style="display:none;">
+                <iframe id="mapFrame" loading="lazy"></iframe>
+              </div>
             </div>
           </div>
 
-          <div class="sm:col-span-2">
-            <button type="submit" class="btn-primary w-full">
-              <i data-lucide="calendar-check" class="w-4 h-4"></i> Confirm Booking
+          <!-- Submit -->
+          <div class="form-full">
+            <button type="submit" class="btn-submit" id="submitBtn">
+              <span>⚡</span> Confirm Booking
             </button>
           </div>
+
         </form>
 
-        <div id="result" class="hidden mt-4 rounded-xl p-4 text-sm text-center font-semibold"></div>
+        <div id="result"></div>
       </div>
 
       <!-- SIDEBAR -->
-      <aside class="flex flex-col gap-4">
-        <!-- Emergency CTA -->
-        <div class="card p-5 border-red-500/15 bg-red-950/10">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/25 text-red-400 flex items-center justify-center">
-              <i data-lucide="siren" class="w-4 h-4 animate-pulse"></i>
-            </div>
+      <div class="sidebar">
+
+        <!-- Emergency -->
+        <div class="sidebar-card emergency-card">
+          <div class="emergency-header">
+            <div class="emergency-icon">🚨</div>
             <div>
-              <p class="font-bold text-sm text-white">Emergency 24×7</p>
-              <p class="text-[10px] text-red-400 font-semibold uppercase tracking-wider">Urgent Dispatch</p>
+              <div class="emergency-title">Emergency 24×7</div>
+              <div class="emergency-tag">⚡ Urgent Dispatch</div>
             </div>
           </div>
-          <p class="text-xs text-slate-400 mb-4 leading-relaxed">Sparking, power outage, short circuit? Get a technician dispatched instantly.</p>
-          <a id="whatsappBtn" href="#" class="btn-emerald w-full justify-center">
-            <i data-lucide="message-square" class="w-3.5 h-3.5"></i> WhatsApp Support
+          <p class="emergency-desc">Sparking wires, power outage, or short circuit? Get a technician dispatched <strong style="color:var(--text)">within minutes</strong>.</p>
+          <a id="whatsappBtn" href="#" class="btn-whatsapp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp Us Now
           </a>
-          <p id="whatsappLabel" class="text-center text-[10px] text-slate-500 mt-2">Connecting…</p>
+          <p id="whatsappLabel" style="text-align:center;font-size:11px;color:var(--text3);margin-top:10px;"></p>
         </div>
 
-        <!-- Trust -->
-        <div class="card p-5">
-          <p class="font-bold text-sm text-white mb-4">Our Guarantees</p>
-          <div class="flex flex-col gap-4">
-            <div class="flex gap-3 items-start">
-              <div class="w-8 h-8 shrink-0 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mt-0.5">
-                <i data-lucide="user-check" class="w-4 h-4"></i>
-              </div>
+        <!-- Price Estimator -->
+        <div class="sidebar-card price-card">
+          <div class="price-title">💰 Price Estimate</div>
+          <div id="priceRows">
+            <div class="price-row">
+              <span class="price-label">Service starts from</span>
+              <span class="price-val accent" id="priceFrom">—</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">Typical duration</span>
+              <span class="price-val" id="priceDuration">—</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">Visit charge</span>
+              <span class="price-val">₹0 (Free)</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">Hidden charges</span>
+              <span class="price-val" style="color:var(--green)">None ✓</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guarantees -->
+        <div class="sidebar-card">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:16px;">🛡️ Our Promise</div>
+          <div class="guarantee-list">
+            <div class="guarantee-item">
+              <div class="guarantee-icon">✅</div>
               <div>
-                <p class="text-sm font-semibold text-white">Verified Technicians</p>
-                <p class="text-xs text-slate-400">Background-checked & certified</p>
+                <div class="guarantee-name">Verified Technicians</div>
+                <div class="guarantee-desc">Background-checked & ID verified</div>
               </div>
             </div>
-            <div class="flex gap-3 items-start">
-              <div class="w-8 h-8 shrink-0 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mt-0.5">
-                <i data-lucide="coins" class="w-4 h-4"></i>
-              </div>
+            <div class="guarantee-item">
+              <div class="guarantee-icon">💸</div>
               <div>
-                <p class="text-sm font-semibold text-white">Transparent Pricing</p>
-                <p class="text-xs text-slate-400">No hidden charges, ever</p>
+                <div class="guarantee-name">Transparent Pricing</div>
+                <div class="guarantee-desc">No hidden charges, ever</div>
               </div>
             </div>
-            <div class="flex gap-3 items-start">
-              <div class="w-8 h-8 shrink-0 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mt-0.5">
-                <i data-lucide="clock" class="w-4 h-4"></i>
-              </div>
+            <div class="guarantee-item">
+              <div class="guarantee-icon">⏱️</div>
               <div>
-                <p class="text-sm font-semibold text-white">30-90 Min Arrival</p>
-                <p class="text-xs text-slate-400">Swift doorstep service</p>
+                <div class="guarantee-name">30–90 Min Arrival</div>
+                <div class="guarantee-desc">Swift doorstep service</div>
+              </div>
+            </div>
+            <div class="guarantee-item">
+              <div class="guarantee-icon">🔧</div>
+              <div>
+                <div class="guarantee-name">Work Guarantee</div>
+                <div class="guarantee-desc">30-day warranty on all repairs</div>
               </div>
             </div>
           </div>
         </div>
-      </aside>
-    </section>
-  </main>
 
-  <footer class="relative z-10 border-t border-white/5 mt-8 py-6 text-center text-xs text-slate-600">
-    &copy; 2026 EVOLT Electric Home Services. All rights reserved.
-  </footer>
+      </div>
+    </div>
+  </section>
 
-  <script>
-    const state = { services: [], lat: null, lng: null };
-    const iconMap = { Fan:'fan', Plugs:'plug', Lightning:'zap', Snowflake:'snowflake', Drop:'droplet', BatteryCharging:'battery-charging', Lightbulb:'lightbulb', ShieldCheck:'shield-check', Bell:'bell', Television:'tv', GaugeCircle:'gauge', Siren:'siren' };
+  <!-- FAQ -->
+  <section>
+    <div class="section-header">
+      <div class="section-tag">FAQ</div>
+      <div class="section-title">Common Questions</div>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How quickly will the technician arrive? <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">For regular bookings, our technicians typically arrive within 30–90 minutes. For emergency 24×7 calls, we dispatch the nearest available technician immediately — usually within 15–30 minutes.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Are there any hidden charges? <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">Absolutely not. The price shown is the starting price for the service. The technician will give you a full quote before starting any work. Visit charges are completely free.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Is the work guaranteed? <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">Yes! All repairs come with a 30-day workmanship guarantee. If the same issue recurs within 30 days, we'll fix it at no extra charge.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How do I cancel or reschedule my booking? <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">Simply WhatsApp us with your Booking ID and we'll reschedule or cancel for you. There's no cancellation fee as long as you inform us before the technician is dispatched.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do you bring spare parts? <span class="faq-arrow">+</span>
+        </button>
+        <div class="faq-a">Our technicians carry a standard toolkit and common spare parts. For specific parts (like a particular fan motor or MCB), they may source them locally — you'll be informed of the cost beforehand.</div>
+      </div>
+    </div>
+  </section>
 
-    async function loadServices() {
-      try {
-        const res = await fetch('/api/services');
-        const data = await res.json();
-        state.services = data.services || [];
+</main>
 
-        const sel = document.getElementById('service_id');
-        sel.innerHTML = state.services.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
+<footer>
+  <p>© 2026 <strong style="color:var(--text)">One Day Electric Home Service</strong>. All rights reserved. &nbsp;|&nbsp; Made with ⚡ in Kanpur &nbsp;|&nbsp; <a href="/admin">Admin Portal</a></p>
+</footer>
 
-        const grid = document.getElementById('servicesGrid');
-        grid.innerHTML = state.services.map(s => `
-          <div class="service-card p-4 flex flex-col gap-2" id="card-${s.id}" data-id="${s.id}">
-            <div class="w-9 h-9 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-500/15 flex items-center justify-center">
-              <i data-lucide="${iconMap[s.icon]||'zap'}" class="w-4 h-4"></i>
-            </div>
-            <p class="text-sm font-bold text-white leading-snug">${s.title}</p>
-            <p class="text-xs text-slate-400 line-clamp-2">${s.description}</p>
-            <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
-              <span class="text-[10px] text-slate-500">${s.duration}</span>
-              <span class="text-xs font-bold text-blue-400">₹${s.price_from}+</span>
-            </div>
-          </div>`).join('');
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
 
-        document.querySelectorAll('.service-card').forEach(c => {
-          c.addEventListener('click', () => selectService(c.getAttribute('data-id')));
-        });
-        sel.addEventListener('change', e => selectService(e.target.value));
+<script>
+const state = { services: [], lat: null, lng: null };
 
-        const wp = data.whatsapp || '9454386338';
-        document.getElementById('whatsappLabel').textContent = `+91 ${wp}`;
-        document.getElementById('whatsappBtn').href = `https://wa.me/91${wp}?text=Hello%20EVOLT%2C%20I%20need%20urgent%20electrical%20help.`;
+const iconMap = {
+  Fan:'🌀', Plugs:'🔌', Lightning:'⚡', Snowflake:'❄️', Drop:'💧',
+  BatteryCharging:'🔋', Lightbulb:'💡', ShieldCheck:'🛡️', Bell:'🔔',
+  Television:'📺', GaugeCircle:'🔧', Siren:'🚨'
+};
 
-        if (state.services.length) selectService(state.services[0].id);
-        lucide.createIcons();
-      } catch (e) {
-        console.error('loadServices error:', e);
-      }
-    }
+async function loadServices() {
+  try {
+    const res = await fetch('/api/services');
+    const data = await res.json();
+    state.services = data.services || [];
 
-    function selectService(id) {
-      document.getElementById('service_id').value = id;
-      document.querySelectorAll('.service-card').forEach(c => {
-        c.classList.toggle('selected', c.getAttribute('data-id') === id);
-      });
-    }
+    const sel = document.getElementById('service_id');
+    sel.innerHTML = state.services.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
 
-    function updateMap() {
-      if (state.lat == null || state.lng == null) return;
-      const q = `${state.lat},${state.lng}`;
-      document.getElementById('locText').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ${q}`;
-      const ml = document.getElementById('mapsLink');
-      ml.href = `https://www.google.com/maps?q=${q}`;
-      ml.classList.remove('hidden');
-      document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${q}&z=15&output=embed`;
-      document.getElementById('mapFrameContainer').classList.remove('hidden');
-    }
+    const grid = document.getElementById('servicesGrid');
+    grid.innerHTML = state.services.map(s => `
+      <div class="service-card" id="card-${s.id}" data-id="${s.id}" onclick="selectService('${s.id}', true)">
+        <div class="selected-check">✓</div>
+        <div class="svc-icon">${iconMap[s.icon] || '⚡'}</div>
+        <div class="svc-name">${s.title}</div>
+        <div class="svc-desc">${s.description}</div>
+        <div class="svc-footer">
+          <span class="svc-time">${s.duration}</span>
+          <span class="svc-price">₹${s.price_from}+ <span style="font-size:10px;opacity:0.7;">→ Book</span></span>
+        </div>
+      </div>`).join('');
 
-    document.getElementById('locBtn').addEventListener('click', () => {
-      document.getElementById('locText').innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Requesting…`;
-      if (!navigator.geolocation) { document.getElementById('locText').textContent = 'GPS not supported.'; return; }
-      navigator.geolocation.getCurrentPosition(p => {
-        state.lat = +p.coords.latitude.toFixed(6);
-        state.lng = +p.coords.longitude.toFixed(6);
-        updateMap();
-      }, err => {
-        const msgs = { 1:'Permission denied. Allow location.', 2:'Location unavailable.', 3:'Request timed out.' };
-        document.getElementById('locText').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> ${msgs[err.code]||'Error.'}`;
-      }, { enableHighAccuracy: true, timeout: 10000 });
-    });
+    sel.addEventListener('change', e => selectService(e.target.value));
 
-    document.getElementById('manualLocBtn').addEventListener('click', () => {
-      const lat = parseFloat(document.getElementById('manualLat').value);
-      const lng = parseFloat(document.getElementById('manualLng').value);
-      if (isNaN(lat) || isNaN(lng)) { document.getElementById('locText').textContent = 'Enter valid coordinates.'; return; }
-      state.lat = +lat.toFixed(6);
-      state.lng = +lng.toFixed(6);
-      updateMap();
-    });
+    const wp = data.whatsapp || '9454386338';
+    document.getElementById('whatsappLabel').textContent = `+91 ${wp}`;
+    document.getElementById('whatsappBtn').href = `https://wa.me/91${wp}?text=Hello%20One%20Day%20Electric%2C%20I%20need%20urgent%20electrical%20help.`;
 
-    document.getElementById('bookingForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const sid = document.getElementById('service_id').value;
-      const svc = state.services.find(s => s.id === sid);
-      const payload = {
-        customer_name: document.getElementById('customer_name').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
-        email: document.getElementById('email').value.trim() || undefined,
-        service_id: sid,
-        service_title: svc ? svc.title : sid,
-        address: document.getElementById('address').value.trim(),
-        city: document.getElementById('city').value.trim() || undefined,
-        pincode: document.getElementById('pincode').value.trim() || undefined,
-        preferred_time: document.getElementById('preferred_time').value.trim() || undefined,
-        notes: document.getElementById('notes').value.trim() || undefined,
-        latitude: state.lat,
-        longitude: state.lng,
-      };
+    if (state.services.length) selectService(state.services[0].id);
+  } catch (e) { console.error('loadServices error:', e); }
+}
 
-      const res = document.getElementById('result');
-      res.textContent = 'Submitting…';
-      res.className = 'block mt-4 rounded-xl p-4 text-sm text-center font-semibold bg-slate-900 border border-blue-500/20 text-blue-400';
+function selectService(id, scroll) {
+  document.getElementById('service_id').value = id;
+  document.querySelectorAll('.service-card').forEach(c => {
+    c.classList.toggle('selected', c.getAttribute('data-id') === id);
+  });
+  const svc = state.services.find(s => s.id === id);
+  if (svc) {
+    document.getElementById('priceFrom').textContent = `₹${svc.price_from}+`;
+    document.getElementById('priceDuration').textContent = svc.duration;
+  }
+  if (scroll) {
+    document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const sel = document.getElementById('service_id');
+    sel.style.transition = 'box-shadow 0.4s';
+    sel.style.boxShadow = '0 0 0 3px rgba(245,166,35,0.5)';
+    setTimeout(() => { sel.style.boxShadow = ''; }, 1200);
+  }
+}
 
-      try {
-        const r = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.detail || 'Booking failed');
+// Time slots
+document.querySelectorAll('.time-slot').forEach(slot => {
+  slot.addEventListener('click', () => {
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('active'));
+    slot.classList.add('active');
+    document.getElementById('preferred_time').value = slot.dataset.val;
+  });
+});
 
-        res.innerHTML = `<p class="text-emerald-400 text-base mb-1">✓ Booking Confirmed!</p><p class="text-xs text-slate-400">ID: <strong class="text-blue-400 font-mono select-all">${d.booking_id}</strong></p>`;
-        res.className = 'block mt-4 rounded-xl p-4 text-sm text-center bg-slate-900 border border-emerald-500/30';
+// GPS
+document.getElementById('locBtn').addEventListener('click', () => {
+  document.getElementById('locText').textContent = 'Requesting…';
+  document.getElementById('locDot').style.background = '#f5a623';
+  if (!navigator.geolocation) { document.getElementById('locText').textContent = 'GPS not supported.'; return; }
+  navigator.geolocation.getCurrentPosition(p => {
+    state.lat = +p.coords.latitude.toFixed(6);
+    state.lng = +p.coords.longitude.toFixed(6);
+    updateMap();
+  }, err => {
+    const msgs = { 1:'Permission denied', 2:'Location unavailable', 3:'Request timed out' };
+    document.getElementById('locText').textContent = msgs[err.code] || 'Error';
+    document.getElementById('locDot').style.background = 'var(--red)';
+  }, { enableHighAccuracy: true, timeout: 10000 });
+});
 
-        e.target.reset();
-        state.lat = null; state.lng = null;
-        document.getElementById('mapFrameContainer').classList.add('hidden');
-        document.getElementById('locText').innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-600"></span> Not shared yet`;
-        document.getElementById('mapsLink').classList.add('hidden');
-        if (state.services.length) selectService(state.services[0].id);
-      } catch (err) {
-        res.innerHTML = `<span class="text-red-400">✗ ${err.message}</span>`;
-        res.className = 'block mt-4 rounded-xl p-4 text-sm text-center bg-slate-900 border border-red-500/30';
-      }
-    });
+function updateMap() {
+  const q = `${state.lat},${state.lng}`;
+  document.getElementById('locText').textContent = q;
+  document.getElementById('locDot').classList.add('active');
+  const ml = document.getElementById('mapsLink');
+  ml.href = `https://www.google.com/maps?q=${q}`;
+  ml.style.display = 'block';
+  document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${q}&z=15&output=embed`;
+  document.getElementById('mapFrameContainer').style.display = 'block';
+}
 
-    loadServices();
-  </script>
+// Form submit
+document.getElementById('bookingForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const sid = document.getElementById('service_id').value;
+  const svc = state.services.find(s => s.id === sid);
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:18px;height:18px;border:2px solid #000;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite"></span> Booking…';
+
+  const payload = {
+    customer_name: document.getElementById('customer_name').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    email: document.getElementById('email').value.trim() || undefined,
+    service_id: sid,
+    service_title: svc ? svc.title : sid,
+    address: document.getElementById('address').value.trim(),
+    city: document.getElementById('city').value.trim() || undefined,
+    pincode: document.getElementById('pincode').value.trim() || undefined,
+    preferred_time: document.getElementById('preferred_time').value.trim() || undefined,
+    notes: document.getElementById('notes').value.trim() || undefined,
+    latitude: state.lat, longitude: state.lng,
+  };
+
+  const resultEl = document.getElementById('result');
+
+  try {
+    const r = await fetch('/api/bookings', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || 'Booking failed');
+
+    resultEl.className = 'show success';
+    resultEl.innerHTML = `
+      <div style="font-size:32px;margin-bottom:8px;">🎉</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--green);margin-bottom:6px;">Booking Confirmed!</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">We'll contact you shortly to confirm your appointment.</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;display:inline-block;">
+        <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;">Booking ID</span><br>
+        <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--accent);letter-spacing:0.05em;">${d.booking_id}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-top:10px;">Save this ID to track your booking status below ↓</div>`;
+
+    e.target.reset();
+    state.lat = null; state.lng = null;
+    document.getElementById('mapFrameContainer').style.display = 'none';
+    document.getElementById('locDot').classList.remove('active');
+    document.getElementById('locText').textContent = 'Not shared yet';
+    document.getElementById('mapsLink').style.display = 'none';
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('active'));
+    if (state.services.length) selectService(state.services[0].id);
+
+  } catch (err) {
+    resultEl.className = 'show error';
+    resultEl.innerHTML = `<div style="font-size:24px;margin-bottom:8px;">❌</div><div style="color:var(--red);font-weight:700;">${err.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>⚡</span> Confirm Booking';
+});
+
+// FAQ
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+// Init
+loadServices();
+</script>
 </body>
 </html>
