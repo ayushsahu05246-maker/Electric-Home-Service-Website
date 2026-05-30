@@ -262,8 +262,12 @@
       try {
         const d = new Date(iso);
         if (isNaN(d)) return iso;
-        const p = n => String(n).padStart(2,'0');
-        return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+        // Display in IST (India Standard Time, UTC+5:30)
+        return d.toLocaleString('en-IN', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric', month: 'short', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: true
+        });
       } catch { return iso; }
     }
 
@@ -411,6 +415,7 @@
                 <p class="font-bold text-white text-sm mt-0.5">${b.service_title||'-'}</p>
                 <p class="text-xs text-slate-400 mt-0.5 truncate max-w-xs">${b.address||'-'}</p>
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">${b.city||''} ${b.pincode||''}</p>
+                ${b.notes ? `<p class="text-[10px] text-amber-400/70 mt-0.5 max-w-xs line-clamp-1">📝 ${b.notes}</p>` : ''}
               </div>
             </div>
 
@@ -423,6 +428,7 @@
               <a href="${waLink}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold transition">
                 <i data-lucide="message-square" class="w-3 h-3"></i> WhatsApp
               </a>
+              ${b.email ? `<a href="mailto:${b.email}" class="text-xs text-blue-300 hover:text-blue-200 flex items-center gap-1 transition"><i data-lucide="mail" class="w-3 h-3"></i> ${b.email}</a>` : '<span class="text-[10px] text-slate-600 flex items-center gap-1"><i data-lucide="mail" class="w-3 h-3"></i> No email</span>'}
               ${b.preferred_time ? `<p class="text-[10px] text-slate-500 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${b.preferred_time}</p>` : ''}
             </div>
 
