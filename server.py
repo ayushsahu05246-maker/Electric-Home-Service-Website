@@ -29,9 +29,13 @@ db_name = os.environ.get('DB_NAME', 'electric_service')
 client = (
     AsyncIOMotorClient(
         mongo_url,
-        serverSelectionTimeoutMS=3000,
-        connectTimeoutMS=3000,
-        socketTimeoutMS=3000,
+        serverSelectionTimeoutMS=8000,
+        connectTimeoutMS=8000,
+        socketTimeoutMS=10000,
+        tls=True,
+        tlsAllowInvalidCertificates=False,
+        retryWrites=True,
+        w="majority",
     )
     if mongo_url
     else None
@@ -528,6 +532,30 @@ async def admin_me(_: dict = Depends(require_admin_access)):
     return {"ok": True}
 
 
+@api_router.post("/admin/cleanup")
+async def admin_cleanup(_: dict = Depends(require_admin_access)):
+    """Delete expired sessions and orphaned data"""
+    cleanup_stats = {
+        'expired_sessions_deleted': 0,
+        'status': 'ok'
+    }
+    
+    if db is not None:
+        try:
+            # Delete expired user sessions
+            result = await db.user_sessions.delete_many({
+                'expires_at': {
+                    '$lt': datetime.now(timezone.utc).isoformat()
+                }
+            })
+            cleanup_stats['expired_sessions_deleted'] = result.deleted_count
+        except PyMongoError as e:
+            logger.error("Cleanup failed: %s", e)
+            cleanup_stats['status'] = 'partial_error'
+    
+    return cleanup_stats
+
+
 app.include_router(api_router)
 
 @app.get("/")
@@ -549,10 +577,13 @@ async def serve_admin_frontend():
 async def head_admin_frontend():
     return Response(status_code=200)
 
+cors_origins = os.environ.get('CORS_ORIGINS', '*')
+cors_origins_list = [origin.strip() for origin in cors_origins.split(',')] if cors_origins != '*' else ['*']
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=cors_origins_list,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -566,4 +597,4 @@ async def startup_sync_bookings():
 @app.on_event("shutdown")
 async def shutdown_db_client():
     if client is not None:
-        client.close()
+        client.close() 
