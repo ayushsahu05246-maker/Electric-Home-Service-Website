@@ -385,6 +385,8 @@ async def create_booking(payload: BookingCreate):
         except PyMongoError as e:
             logger.error("Booking save to MongoDB failed: %s", e)
 
+    save_doc.pop('_id', None)
+
     local_items = _load_local_bookings()
     local_items.insert(0, save_doc.copy())
     _save_local_bookings(local_items)
@@ -392,7 +394,6 @@ async def create_booking(payload: BookingCreate):
     if db is not None:
         asyncio.create_task(_sync_local_bookings_to_mongo())
 
-    save_doc.pop('_id', None)
     asyncio.create_task(send_admin_email(save_doc))
     return Booking(**save_doc)
 
