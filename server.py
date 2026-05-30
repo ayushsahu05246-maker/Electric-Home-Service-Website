@@ -63,6 +63,64 @@ def _save_local_bookings(items: list[dict]) -> None:
     with BOOKINGS_FILE.open("w", encoding="utf-8") as f:
         json.dump(items, f, indent=2)
 
+
+def _merge_bookings(*sources: list[dict]) -> list[dict]:
+    """Merge booking lists; later sources override earlier ones for the same booking_id."""
+    by_id: dict[str, dict] = {}
+    for source in sources:
+        for item in source:
+            booking_id = item.get("booking_id")
+            if booking_id:
+                by_id[booking_id] = item
+    merged = list(by_id.values())
+    merged.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    return merged
+
+
+def _stats_from_items(items: list[dict]) -> dict:
+    return {
+        'total': len(items),
+        'pending': sum(1 for x in items if x.get("status") == "pending"),
+        'in_progress': sum(1 for x in items if x.get("status") == "in_progress"),
+        'completed': sum(1 for x in items if x.get("status") == "completed"),
+    }
+
+
+async def _get_mongo_bookings() -> list[dict]:
+    if db is None:
+        return []
+    try:
+        return await db.bookings.find({}, {'_id': 0}).sort('created_at', -1).to_list(2000)
+    except PyMongoError as e:
+        logger.error("Could not load bookings from MongoDB: %s", e)
+        return []
+
+
+async def _get_all_bookings() -> list[dict]:
+    local_items = _load_local_bookings()
+    mongo_items = await _get_mongo_bookings()
+    return _merge_bookings(local_items, mongo_items)
+
+
+async def _sync_local_bookings_to_mongo() -> None:
+    if db is None:
+        return
+    local_items = _load_local_bookings()
+    if not local_items:
+        return
+    try:
+        existing_ids = {
+            doc.get("booking_id")
+            async for doc in db.bookings.find({}, {"booking_id": 1, "_id": 0})
+        }
+        for item in local_items:
+            booking_id = item.get("booking_id")
+            if booking_id and booking_id not in existing_ids:
+                await db.bookings.insert_one(item.copy())
+                existing_ids.add(booking_id)
+    except PyMongoError as e:
+        logger.error("Could not sync local bookings to MongoDB: %s", e)
+
 # ---------- Models ----------
 class BookingCreate(BaseModel):
     customer_name: str
@@ -240,6 +298,8 @@ async def create_booking(payload: BookingCreate):
             await db.bookings.insert_one(doc)
         except PyMongoError as e:
             logger.error("Booking save skipped (DB unavailable): %s", e)
+        else:
+            asyncio.create_task(_sync_local_bookings_to_mongo())
     doc.pop('_id', None)
     asyncio.create_task(send_admin_email(doc))
     return Booking(**doc)
@@ -247,14 +307,8 @@ async def create_booking(payload: BookingCreate):
 
 @api_router.get('/bookings')
 async def list_bookings(_: dict = Depends(require_admin_access)):
-    if db is None:
-        return {'bookings': _load_local_bookings()}
-    try:
-        items = await db.bookings.find({}, {'_id': 0}).sort('created_at', -1).to_list(2000)
-        return {'bookings': items}
-    except PyMongoError as e:
-        logger.error("Could not load bookings (DB unavailable): %s", e)
-        return {'bookings': _load_local_bookings()}
+    items = await _get_all_bookings()
+    return {'bookings': items}
 
 
 @api_router.patch('/bookings/{booking_id}/status', response_model=Booking)
@@ -297,29 +351,8 @@ async def update_status(booking_id: str, body: StatusUpdate, _: dict = Depends(r
 
 @api_router.get('/bookings/stats')
 async def stats(_: dict = Depends(require_admin_access)):
-    if db is None:
-        items = _load_local_bookings()
-        return {
-            'total': len(items),
-            'pending': sum(1 for x in items if x.get("status") == "pending"),
-            'in_progress': sum(1 for x in items if x.get("status") == "in_progress"),
-            'completed': sum(1 for x in items if x.get("status") == "completed"),
-        }
-    try:
-        total = await db.bookings.count_documents({})
-        pending = await db.bookings.count_documents({'status': 'pending'})
-        in_progress = await db.bookings.count_documents({'status': 'in_progress'})
-        completed = await db.bookings.count_documents({'status': 'completed'})
-        return {'total': total, 'pending': pending, 'in_progress': in_progress, 'completed': completed}
-    except PyMongoError as e:
-        logger.error("Could not load stats (DB unavailable): %s", e)
-        items = _load_local_bookings()
-        return {
-            'total': len(items),
-            'pending': sum(1 for x in items if x.get("status") == "pending"),
-            'in_progress': sum(1 for x in items if x.get("status") == "in_progress"),
-            'completed': sum(1 for x in items if x.get("status") == "completed"),
-        }
+    items = await _get_all_bookings()
+    return _stats_from_items(items)
 
 
 # ---------- Auth Endpoints ----------
@@ -459,6 +492,11 @@ app.add_middleware(
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+@app.on_event("startup")
+async def startup_sync_bookings():
+    await _sync_local_bookings_to_mongo()
 
 
 @app.on_event("shutdown")
