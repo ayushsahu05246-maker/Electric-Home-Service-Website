@@ -8,8 +8,9 @@ import os
 import logging
 import asyncio
 import uuid
-import secrets
 import json
+import hmac
+import hashlib
 import httpx
 import resend
 from pathlib import Path
@@ -20,7 +21,11 @@ from datetime import datetime, timezone, timedelta
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 mongo_url = os.environ.get('MONGO_URL', '')
+db_name = os.environ.get('DB_NAME', 'electric_service')
 client = (
     AsyncIOMotorClient(
         mongo_url,
@@ -31,14 +36,16 @@ client = (
     if mongo_url
     else None
 )
-db = client[os.environ['DB_NAME']] if client and os.environ.get('DB_NAME') else None
+db = client[db_name] if client else None
 
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'ayushsahu05246@gmail.com').lower()
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
 WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER', '9454386338')
 ADMIN_PORTAL_PIN = os.environ.get('ADMIN_PORTAL_PIN', '1234')
-admin_portal_sessions = set()
+ADMIN_SESSION_SECRET = os.environ.get('ADMIN_SESSION_SECRET', ADMIN_PORTAL_PIN)
+COOKIE_SECURE = os.environ.get('RENDER', '') == 'true' or os.environ.get('COOKIE_SECURE', '').lower() == 'true'
+ADMIN_SESSION_MAX_AGE = 7 * 24 * 60 * 60
 BOOKINGS_FILE = ROOT_DIR / "bookings.local.json"
 
 if RESEND_API_KEY:
@@ -120,6 +127,78 @@ async def _sync_local_bookings_to_mongo() -> None:
                 existing_ids.add(booking_id)
     except PyMongoError as e:
         logger.error("Could not sync local bookings to MongoDB: %s", e)
+
+
+def _create_admin_token() -> str:
+    issued = int(datetime.now(timezone.utc).timestamp())
+    payload = f"adm:{issued}"
+    sig = hmac.new(ADMIN_SESSION_SECRET.encode(), payload.encode(), hashlib.sha256).hexdigest()
+    return f"{payload}.{sig}"
+
+
+def _verify_admin_token(token: str) -> bool:
+    if not token or "." not in token:
+        return False
+    payload, sig = token.rsplit(".", 1)
+    expected = hmac.new(ADMIN_SESSION_SECRET.encode(), payload.encode(), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(sig, expected) or not payload.startswith("adm:"):
+        return False
+    try:
+        issued = int(payload.split(":", 1)[1])
+    except ValueError:
+        return False
+    age = datetime.now(timezone.utc).timestamp() - issued
+    return age <= ADMIN_SESSION_MAX_AGE
+
+
+async def _mongo_ping_ok() -> bool:
+    if client is None:
+        return False
+    try:
+        await client.admin.command("ping")
+        return True
+    except Exception:
+        return False
+
+
+async def _update_booking_status(booking_id: str, status: str) -> dict:
+    updated: Optional[dict] = None
+
+    local_items = _load_local_bookings()
+    for idx, item in enumerate(local_items):
+        if item.get("booking_id") == booking_id:
+            local_items[idx]["status"] = status
+            updated = local_items[idx].copy()
+            _save_local_bookings(local_items)
+            break
+
+    if db is not None:
+        try:
+            res = await db.bookings.find_one_and_update(
+                {"booking_id": booking_id},
+                {"$set": {"status": status}},
+                return_document=True,
+                projection={"_id": 0},
+            )
+            if res:
+                updated = res
+                local_items = _load_local_bookings()
+                for idx, item in enumerate(local_items):
+                    if item.get("booking_id") == booking_id:
+                        local_items[idx]["status"] = status
+                        _save_local_bookings(local_items)
+                        break
+            elif updated:
+                await db.bookings.insert_one(updated)
+        except PyMongoError as e:
+            logger.error("Could not update booking in MongoDB: %s", e)
+            if updated:
+                return updated
+            raise HTTPException(503, "Database unavailable")
+
+    if not updated:
+        raise HTTPException(404, "Booking not found")
+    return updated
 
 # ---------- Models ----------
 class BookingCreate(BaseModel):
@@ -213,7 +292,7 @@ async def get_optional_user(request: Request) -> Optional[User]:
 
 def _is_portal_admin(request: Request) -> bool:
     token = request.cookies.get("admin_portal_token")
-    return bool(token and token in admin_portal_sessions)
+    return _verify_admin_token(token or "")
 
 
 async def require_admin_access(
@@ -275,6 +354,17 @@ async def root():
     return {'message': 'EVOLT Electric API', 'status': 'ok'}
 
 
+@api_router.get('/health')
+async def health_check():
+    mongo_ok = await _mongo_ping_ok()
+    items = await _get_all_bookings()
+    return {
+        'status': 'ok',
+        'mongodb': 'connected' if mongo_ok else 'unavailable',
+        'bookings_total': len(items),
+    }
+
+
 @api_router.get('/services')
 async def list_services():
     return {'services': SERVICES, 'whatsapp': WHATSAPP_NUMBER}
@@ -287,22 +377,24 @@ async def create_booking(payload: BookingCreate):
     doc['booking_id'] = booking_id
     doc['status'] = 'pending'
     doc['created_at'] = datetime.now(timezone.utc).isoformat()
-
-    # Always keep a local copy so app works without MongoDB.
-    local_items = _load_local_bookings()
-    local_items.insert(0, doc.copy())
-    _save_local_bookings(local_items)
+    save_doc = doc.copy()
 
     if db is not None:
         try:
-            await db.bookings.insert_one(doc)
+            await db.bookings.insert_one(save_doc)
         except PyMongoError as e:
-            logger.error("Booking save skipped (DB unavailable): %s", e)
-        else:
-            asyncio.create_task(_sync_local_bookings_to_mongo())
-    doc.pop('_id', None)
-    asyncio.create_task(send_admin_email(doc))
-    return Booking(**doc)
+            logger.error("Booking save to MongoDB failed: %s", e)
+
+    local_items = _load_local_bookings()
+    local_items.insert(0, save_doc.copy())
+    _save_local_bookings(local_items)
+
+    if db is not None:
+        asyncio.create_task(_sync_local_bookings_to_mongo())
+
+    save_doc.pop('_id', None)
+    asyncio.create_task(send_admin_email(save_doc))
+    return Booking(**save_doc)
 
 
 @api_router.get('/bookings')
@@ -313,40 +405,8 @@ async def list_bookings(_: dict = Depends(require_admin_access)):
 
 @api_router.patch('/bookings/{booking_id}/status', response_model=Booking)
 async def update_status(booking_id: str, body: StatusUpdate, _: dict = Depends(require_admin_access)):
-    if db is None:
-        local_items = _load_local_bookings()
-        for idx, item in enumerate(local_items):
-            if item.get("booking_id") == booking_id:
-                local_items[idx]["status"] = body.status
-                _save_local_bookings(local_items)
-                return Booking(**local_items[idx])
-        raise HTTPException(404, 'Booking not found')
-    try:
-        res = await db.bookings.find_one_and_update(
-            {'booking_id': booking_id},
-            {'$set': {'status': body.status}},
-            return_document=True,
-            projection={'_id': 0},
-        )
-        if res:
-            local_items = _load_local_bookings()
-            for idx, item in enumerate(local_items):
-                if item.get("booking_id") == booking_id:
-                    local_items[idx]["status"] = body.status
-                    _save_local_bookings(local_items)
-                    break
-    except PyMongoError as e:
-        logger.error("Could not update booking status (DB unavailable): %s", e)
-        local_items = _load_local_bookings()
-        for idx, item in enumerate(local_items):
-            if item.get("booking_id") == booking_id:
-                local_items[idx]["status"] = body.status
-                _save_local_bookings(local_items)
-                return Booking(**local_items[idx])
-        raise HTTPException(503, 'Database unavailable')
-    if not res:
-        raise HTTPException(404, 'Booking not found')
-    return Booking(**res)
+    updated = await _update_booking_status(booking_id, body.status)
+    return Booking(**updated)
 
 
 @api_router.get('/bookings/stats')
@@ -443,14 +503,13 @@ async def admin_login(request: Request, response: Response):
     if pin != ADMIN_PORTAL_PIN:
         raise HTTPException(status_code=401, detail="Invalid PIN")
 
-    token = f"adm_{secrets.token_hex(16)}"
-    admin_portal_sessions.add(token)
+    token = _create_admin_token()
     response.set_cookie(
         key="admin_portal_token",
         value=token,
-        max_age=7 * 24 * 60 * 60,
+        max_age=ADMIN_SESSION_MAX_AGE,
         httponly=True,
-        secure=False,
+        secure=COOKIE_SECURE,
         samesite="lax",
         path="/",
     )
@@ -459,9 +518,6 @@ async def admin_login(request: Request, response: Response):
 
 @api_router.post("/admin/logout")
 async def admin_logout(request: Request, response: Response):
-    token = request.cookies.get("admin_portal_token")
-    if token and token in admin_portal_sessions:
-        admin_portal_sessions.remove(token)
     response.delete_cookie("admin_portal_token", path="/")
     return {"ok": True}
 
@@ -478,9 +534,19 @@ async def serve_frontend():
     return FileResponse(ROOT_DIR / "customer.html")
 
 
+@app.head("/")
+async def head_frontend():
+    return Response(status_code=200)
+
+
 @app.get("/admin")
 async def serve_admin_frontend():
     return FileResponse(ROOT_DIR / "admin.html")
+
+
+@app.head("/admin")
+async def head_admin_frontend():
+    return Response(status_code=200)
 
 app.add_middleware(
     CORSMiddleware,
@@ -489,9 +555,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 
 @app.on_event("startup")

@@ -548,6 +548,10 @@
 
       } catch (err) {
         console.error("Could not load services:", err);
+        const grid = document.getElementById("servicesGrid");
+        if (grid) {
+          grid.innerHTML = `<div class="col-span-full text-center text-red-400 py-8">Could not load services. Please refresh the page.</div>`;
+        }
       }
     }
 
@@ -645,9 +649,11 @@
         pincode: document.getElementById("pincode").value.trim() || undefined,
         preferred_time: document.getElementById("preferred_time").value.trim() || undefined,
         notes: document.getElementById("notes").value.trim() || undefined,
-        latitude: state.latitude,
-        longitude: state.longitude
       };
+      if (state.latitude != null && state.longitude != null) {
+        payload.latitude = state.latitude;
+        payload.longitude = state.longitude;
+      }
 
       const result = document.getElementById("result");
       result.textContent = "Booking technician on 3D blockchain database...";

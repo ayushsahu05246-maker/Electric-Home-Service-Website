@@ -29,6 +29,7 @@ Set these in Render -> Environment:
 - `DB_NAME`
 - `ADMIN_EMAIL`
 - `ADMIN_PORTAL_PIN`
+- `ADMIN_SESSION_SECRET` (optional; defaults to PIN — use a long random string in production)
 - `CORS_ORIGINS` (set your Render app URL)
 - `RESEND_API_KEY` (optional)
 - `SENDER_EMAIL`
