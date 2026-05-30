@@ -3,776 +3,487 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EVOLT - Premium 3D Admin Dashboard</title>
-  <!-- Google Fonts -->
+  <title>EVOLT Admin Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Tailwind CSS CDN -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #020617; /* slate-950 */
-      overflow-x: hidden;
-      perspective: 1200px;
-    }
-    h1, h2, h3, h4, .font-heading {
-      font-family: 'Outfit', sans-serif;
-    }
-    
-    /* 3D Perspective Grid Background */
-    .perspective-grid {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 150%;
-      background-image: 
-        linear-gradient(rgba(59, 130, 246, 0.05) 1.5px, transparent 1.5px),
-        linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1.5px, transparent 1.5px);
-      background-size: 60px 60px;
-      background-position: center top;
-      transform: perspective(600px) rotateX(65deg) translateY(-250px) translateZ(-150px);
-      mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
-      -webkit-mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
-      opacity: 0.6;
-      pointer-events: none;
-      z-index: 0;
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #030712; }
+    h1,h2,h3,h4 { font-family: 'Outfit', sans-serif; }
+
+    .card {
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1.25rem;
+      backdrop-filter: blur(12px);
     }
 
-    .glass {
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-    }
-    
-    .glass-input {
-      background: rgba(30, 41, 59, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-    .glass-input:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
-      background: rgba(30, 41, 59, 0.7);
-      transform: translateZ(5px);
-    }
-    
     .gradient-text {
-      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #22d3ee 100%);
+      background: linear-gradient(135deg,#60a5fa,#3b82f6,#22d3ee);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    /* 3D Button Press Effect */
-    .btn-3d {
-      position: relative;
-      transform-style: preserve-3d;
-      transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
-      border-bottom: 4px solid #1d4ed8;
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25);
+    .field {
+      background: rgba(30,41,59,0.5);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: .75rem;
+      color: #e2e8f0;
+      transition: border-color .2s, box-shadow .2s;
+      width: 100%;
+      padding: .75rem 1rem;
+      font-size: .875rem;
+      outline: none;
     }
-    .btn-3d:hover {
-      transform: translateY(-2px);
-      border-bottom-width: 6px;
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+    .field:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,.18);
     }
-    .btn-3d:active {
-      transform: translateY(4px);
-      border-bottom-width: 0px;
-      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15);
-    }
+    .field::placeholder { color: #475569; }
 
-    /* 3D Parallax Tilt */
-    .tilt-3d {
-      transform-style: preserve-3d;
-      transition: transform 0.1s ease;
+    .btn-primary {
+      background: linear-gradient(135deg,#2563eb,#0ea5e9);
+      color: #fff; font-weight: 700; padding: .875rem 1.5rem;
+      border-radius: .875rem; border: none; cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      font-size: .9rem;
     }
-    .depth-icon {
-      transform: translateZ(40px);
-    }
-    .depth-title {
-      transform: translateZ(25px);
-    }
-    .depth-desc {
-      transform: translateZ(12px);
-    }
-    .depth-badge {
-      transform: translateZ(20px);
-    }
+    .btn-primary:hover { opacity: .92; }
+    .btn-primary:active { transform: scale(.98); }
 
-    /* Custom colored glowing stat borders */
-    .stat-card {
-      transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .stat-card:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 15px 35px rgba(255, 255, 255, 0.05);
-    }
-
-    /* Card styling for List items */
-    .booking-item {
-      transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.25s, box-shadow 0.25s;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-    .booking-item:hover {
-      border-color: rgba(59, 130, 246, 0.3);
-      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.15);
-    }
-
-    /* 3D Swing Entrance for Modal */
-    @keyframes swingIn {
-      0% {
-        transform: scale(0.85) rotateX(-25deg) rotateY(15deg) translateY(-40px) translateZ(-150px);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1) rotateX(0deg) rotateY(0deg) translateY(0) translateZ(0);
-        opacity: 1;
-      }
-    }
-    .modal-swing-card {
-      transform-style: preserve-3d;
-      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    #mapModal:not(.opacity-0) .modal-swing-card {
-      animation: swingIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
-
-    /* Shake Animation */
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
+      0%,100%{transform:translateX(0)}
+      25%{transform:translateX(-6px)}
+      75%{transform:translateX(6px)}
     }
-    .shake {
-      animation: shake 0.15s ease-in-out 0s 2;
+    .shake { animation: shake .15s ease-in-out 0s 2; }
+
+    /* Status badge colors */
+    .status-pending   { color:#fbbf24; background:rgba(251,191,36,.1);   border:1px solid rgba(251,191,36,.2); }
+    .status-in_progress { color:#60a5fa; background:rgba(96,165,250,.1);  border:1px solid rgba(96,165,250,.2); }
+    .status-completed { color:#34d399; background:rgba(52,211,153,.1);  border:1px solid rgba(52,211,153,.2); }
+    .status-cancelled { color:#f87171; background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.2); }
+
+    .status-sel {
+      border-radius: .6rem; padding: .35rem .7rem;
+      font-size: .75rem; font-weight: 700;
+      cursor: pointer; outline: none; border: 1px solid;
+      transition: all .2s;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
+    /* Booking card hover */
+    .booking-card {
+      transition: border-color .2s, background .2s;
+      border: 1px solid rgba(255,255,255,0.04);
     }
-    ::-webkit-scrollbar-track {
-      background: #020617;
+    .booking-card:hover {
+      border-color: rgba(59,130,246,0.25);
+      background: rgba(37,99,235,0.04);
     }
-    ::-webkit-scrollbar-thumb {
-      background: #1e293b;
-      border-radius: 4px;
+
+    /* Filter tabs */
+    .filter-tab {
+      font-size: .75rem; font-weight: 700; padding: .4rem .9rem;
+      border-radius: .75rem; cursor: pointer; transition: all .2s;
+      color: #64748b; border: 1px solid transparent;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #3b82f6;
-    }
+    .filter-tab:hover { color: #94a3b8; }
+    .filter-tab.active { background: rgba(59,130,246,.15); color: #93c5fd; border-color: rgba(59,130,246,.25); }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #030712; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white relative">
+<body class="text-slate-100 min-h-screen flex flex-col">
 
-  <!-- Perspective Retro Grid & Glowing Orbs -->
-  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="perspective-grid"></div>
-    <div class="absolute top-[5%] right-[5%] w-[45%] h-[50%] rounded-full bg-blue-900/10 blur-[130px]"></div>
-    <div class="absolute bottom-[10%] left-[5%] w-[45%] h-[50%] rounded-full bg-indigo-900/10 blur-[130px]"></div>
+  <!-- Ambient blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="absolute -top-32 right-0 w-96 h-96 rounded-full bg-blue-900/12 blur-3xl"></div>
+    <div class="absolute bottom-0 -left-32 w-80 h-80 rounded-full bg-indigo-900/10 blur-3xl"></div>
   </div>
 
-  <!-- Header -->
-  <header class="relative z-10 border-b border-white/5 bg-slate-950/70 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-          <i data-lucide="zap" class="w-6 h-6 text-white fill-white/20"></i>
-        </div>
-        <div>
-          <span class="text-2xl font-extrabold tracking-tight text-white font-heading">EVOLT</span>
-          <span class="text-[10px] block text-blue-400 tracking-widest font-heading font-semibold uppercase leading-none">ADMIN CONTROL</span>
+  <!-- Toast -->
+  <div id="toast" class="fixed top-5 right-5 z-50 opacity-0 pointer-events-none transition-all duration-300 translate-y-[-12px] card px-4 py-3 flex items-center gap-3 shadow-xl min-w-[220px]">
+    <div id="toastIcon" class="w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 shrink-0"></div>
+    <div>
+      <p class="text-xs font-bold text-white" id="toastTitle"></p>
+      <p class="text-[10px] text-slate-400" id="toastMsg"></p>
+    </div>
+  </div>
+
+  <!-- Map Modal -->
+  <div id="mapModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur opacity-0 pointer-events-none transition-all duration-300">
+    <div class="card w-full max-w-xl m-4 overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-white/5">
+        <p class="font-bold text-white flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-blue-400"></i> Booking Location</p>
+        <button onclick="closeMap()" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+      <div class="p-5">
+        <iframe id="modalMapFrame" class="w-full h-72 rounded-xl border border-white/10" loading="lazy"></iframe>
+        <div class="mt-3 flex justify-between items-center text-xs text-slate-400">
+          <span id="modalCoords"></span>
+          <a id="modalMapsLink" target="_blank" class="text-blue-400 hover:text-blue-300 font-semibold">Open Google Maps →</a>
         </div>
       </div>
-      <div class="flex items-center gap-4">
-        <a href="/" class="text-sm font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl border border-white/5">
-          <i data-lucide="external-link" class="w-4 h-4"></i> Customer Site
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="relative z-10 sticky top-0 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30">
+          <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <p class="font-black text-xl text-white leading-none">EVOLT</p>
+          <p class="text-[10px] font-semibold text-blue-400 tracking-widest leading-none uppercase">Admin</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/" class="text-xs font-semibold text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Customer Site
         </a>
-        <button id="logoutBtn" class="hidden text-sm font-semibold text-red-400 hover:text-red-300 transition flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 px-4 py-2 rounded-xl border border-red-500/20">
-          <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+        <button id="logoutBtn" class="hidden text-xs font-semibold text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/15 border border-red-500/20 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Notification Toast -->
-  <div id="toast" class="fixed top-6 right-6 z-[100] transform translate-y-[-20px] opacity-0 pointer-events-none transition-all duration-300 glass border-emerald-500/30 text-slate-100 px-5 py-3.5 rounded-2xl shadow-xl flex items-center gap-3">
-    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/20" id="toastIcon">
-      <i data-lucide="check" class="w-4 h-4"></i>
-    </div>
-    <div>
-      <h5 class="text-xs font-bold text-white" id="toastTitle">Success</h5>
-      <p class="text-[10px] text-slate-400" id="toastMsg">Status updated successfully.</p>
-    </div>
-  </div>
+  <main class="relative z-10 max-w-7xl mx-auto px-5 py-8 w-full flex-grow flex flex-col">
 
-  <!-- Map Modal -->
-  <div id="mapModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
-    <div class="glass w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl m-4 modal-swing-card border border-white/10" id="mapModalCard">
-      <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
-        <h3 class="font-bold text-white flex items-center gap-2">
-          <i data-lucide="map" class="w-5 h-5 text-blue-400 animate-bounce"></i> Booking Location Map
-        </h3>
-        <button onclick="closeMapModal()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition flex items-center justify-center">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-      <div class="p-6">
-        <iframe id="modalMapFrame" class="w-full h-80 rounded-2xl border border-white/10" loading="lazy"></iframe>
-        <div class="mt-4 flex justify-between items-center text-xs text-slate-400">
-          <span id="modalCoordsText">Coordinates: N/A</span>
-          <a id="modalMapsLink" target="_blank" rel="noreferrer" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1">
-            Open in Google Maps <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Area -->
-  <main class="relative z-10 max-w-7xl mx-auto px-6 py-8 w-full flex-grow flex flex-col justify-center">
-    
-    <!-- Login Screen -->
-    <section id="loginCard" class="max-w-md w-full mx-auto glass rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden transition-all duration-300 tilt-3d">
-      <div class="absolute -right-8 -top-8 w-24 h-24 bg-blue-600/10 rounded-full blur-xl"></div>
-      
-      <div class="text-center mb-6">
-        <div class="w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto mb-4 depth-icon">
-          <i data-lucide="lock" class="w-7 h-7"></i>
-        </div>
-        <h2 class="text-2xl font-bold font-heading text-white depth-title">Admin Access Console</h2>
-        <p class="text-xs text-slate-400 mt-1 depth-desc">Provide security PIN key to manage system logs</p>
-      </div>
-
-      <div class="space-y-4 depth-desc">
-        <div>
-          <label for="pinInput" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Portal PIN</label>
-          <div class="relative">
-            <input id="pinInput" type="password" class="w-full glass-input rounded-xl pl-10 pr-4 py-3.5 text-center text-lg tracking-[0.5em] font-mono text-slate-100" placeholder="••••" maxlength="8" />
-            <i data-lucide="key-round" class="absolute left-3.5 top-4.5 w-4 h-4 text-slate-400"></i>
+    <!-- LOGIN SCREEN -->
+    <section id="loginScreen" class="flex items-center justify-center flex-grow">
+      <div class="card p-8 w-full max-w-sm" id="loginCard">
+        <div class="text-center mb-6">
+          <div class="w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="lock" class="w-7 h-7"></i>
           </div>
+          <h2 class="text-xl font-bold text-white">Admin Access</h2>
+          <p class="text-xs text-slate-400 mt-1">Enter your portal PIN to continue</p>
         </div>
-
-        <button id="loginBtn" class="w-full py-4 text-white font-bold tracking-wide rounded-xl btn-3d flex items-center justify-center gap-2 text-base">
-          <i data-lucide="log-in" class="w-4 h-4"></i> Secure Authentication
-        </button>
-
-        <p id="loginMsg" class="text-center text-xs font-medium text-slate-400 min-h-[1.25rem] mt-2"></p>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Portal PIN</label>
+            <input id="pinInput" type="password" class="field text-center text-2xl tracking-[.5em] font-mono" placeholder="••••" maxlength="8" />
+          </div>
+          <button id="loginBtn" class="btn-primary w-full">
+            <i data-lucide="log-in" class="w-4 h-4"></i> Sign In
+          </button>
+          <p id="loginMsg" class="text-center text-xs text-slate-400 min-h-[1rem]"></p>
+        </div>
       </div>
     </section>
 
-    <!-- Dashboard Screen -->
-    <section id="dashboard" class="hidden flex-col gap-8 w-full">
-      
-      <!-- Stats Overview Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <!-- Total -->
-        <div class="glass rounded-2xl p-5 border border-white/5 relative overflow-hidden flex items-center gap-4 stat-card tilt-3d" id="stat-total">
-          <div class="w-12 h-12 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center border border-white/5 depth-icon">
-            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+    <!-- DASHBOARD SCREEN -->
+    <section id="dashScreen" class="hidden flex-col gap-6">
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card p-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-white/5 flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
           </div>
-          <div class="depth-title">
-            <p class="text-xs font-medium text-slate-400">Total Bookings</p>
-            <p id="stTotal" class="text-3xl font-extrabold text-white font-heading mt-0.5">0</p>
+          <div>
+            <p class="text-xs text-slate-400">Total</p>
+            <p id="stTotal" class="text-2xl font-extrabold text-white">0</p>
           </div>
         </div>
-
-        <!-- Pending -->
-        <div class="glass rounded-2xl p-5 border border-amber-500/10 relative overflow-hidden flex items-center gap-4 stat-card tilt-3d" id="stat-pending">
-          <div class="absolute -right-6 -bottom-6 w-16 h-16 bg-amber-500/5 rounded-full blur-xl"></div>
-          <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 shadow-lg shadow-amber-500/5 depth-icon">
-            <i data-lucide="clock" class="w-5 h-5"></i>
+        <div class="card p-4 flex items-center gap-3 border-amber-500/10">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
+            <i data-lucide="clock" class="w-4 h-4"></i>
           </div>
-          <div class="depth-title">
-            <p class="text-xs font-medium text-slate-400">Pending</p>
-            <p id="stPending" class="text-3xl font-extrabold text-amber-400 font-heading mt-0.5">0</p>
+          <div>
+            <p class="text-xs text-slate-400">Pending</p>
+            <p id="stPending" class="text-2xl font-extrabold text-amber-400">0</p>
           </div>
         </div>
-
-        <!-- In Progress -->
-        <div class="glass rounded-2xl p-5 border border-blue-500/10 relative overflow-hidden flex items-center gap-4 stat-card tilt-3d" id="stat-progress">
-          <div class="absolute -right-6 -bottom-6 w-16 h-16 bg-blue-500/5 rounded-full blur-xl"></div>
-          <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20 shadow-lg shadow-blue-500/5 depth-icon">
-            <i data-lucide="activity" class="w-5 h-5"></i>
+        <div class="card p-4 flex items-center gap-3 border-blue-500/10">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
+            <i data-lucide="activity" class="w-4 h-4"></i>
           </div>
-          <div class="depth-title">
-            <p class="text-xs font-medium text-slate-400">In Progress</p>
-            <p id="stProgress" class="text-3xl font-extrabold text-blue-400 font-heading mt-0.5">0</p>
+          <div>
+            <p class="text-xs text-slate-400">In Progress</p>
+            <p id="stProgress" class="text-2xl font-extrabold text-blue-400">0</p>
           </div>
         </div>
-
-        <!-- Completed -->
-        <div class="glass rounded-2xl p-5 border border-emerald-500/10 relative overflow-hidden flex items-center gap-4 stat-card tilt-3d" id="stat-completed">
-          <div class="absolute -right-6 -bottom-6 w-16 h-16 bg-emerald-500/5 rounded-full blur-xl"></div>
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-500/5 depth-icon">
-            <i data-lucide="check-circle" class="w-5 h-5"></i>
+        <div class="card p-4 flex items-center gap-3 border-emerald-500/10">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
           </div>
-          <div class="depth-title">
-            <p class="text-xs font-medium text-slate-400">Completed</p>
-            <p id="stCompleted" class="text-3xl font-extrabold text-emerald-400 font-heading mt-0.5">0</p>
+          <div>
+            <p class="text-xs text-slate-400">Completed</p>
+            <p id="stCompleted" class="text-2xl font-extrabold text-emerald-400">0</p>
           </div>
         </div>
       </div>
 
-      <!-- Controls & Filter Bar -->
-      <div class="glass rounded-[2rem] p-5 flex flex-col md:flex-row gap-4 justify-between items-center">
-        <!-- Search Input -->
-        <div class="relative w-full md:max-w-md">
-          <input id="searchInput" type="text" class="w-full glass-input rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200" placeholder="Search customer, ID, service, address..." />
-          <i data-lucide="search" class="absolute left-3.5 top-3 w-4.5 h-4.5 text-slate-400"></i>
+      <!-- Search & Filter bar -->
+      <div class="card p-4 flex flex-col sm:flex-row gap-3 items-center">
+        <div class="relative w-full sm:max-w-sm">
+          <input id="searchInput" type="text" class="field pl-9" placeholder="Search name, phone, ID, service…" />
+          <i data-lucide="search" class="absolute left-3 top-3.5 w-3.5 h-3.5 text-slate-500"></i>
         </div>
-
-        <!-- Status Filter Pills -->
-        <div class="flex flex-wrap gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-white/5 w-full md:w-auto">
-          <button data-filter="all" class="filter-btn text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 text-slate-400 hover:text-white bg-transparent">All</button>
-          <button data-filter="pending" class="filter-btn text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 text-slate-400 hover:text-amber-400 bg-transparent flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Pending</button>
-          <button data-filter="in_progress" class="filter-btn text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 text-slate-400 hover:text-blue-400 bg-transparent flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> In Progress</button>
-          <button data-filter="completed" class="filter-btn text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 text-slate-400 hover:text-emerald-400 bg-transparent flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Completed</button>
-          <button data-filter="cancelled" class="filter-btn text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 text-slate-400 hover:text-red-400 bg-transparent flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Cancelled</button>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="pending">⏳ Pending</button>
+          <button class="filter-tab" data-filter="in_progress">⚡ In Progress</button>
+          <button class="filter-tab" data-filter="completed">✅ Completed</button>
+          <button class="filter-tab" data-filter="cancelled">✗ Cancelled</button>
         </div>
       </div>
 
-      <!-- Bookings List Stack -->
-      <div class="flex flex-col gap-4" id="bookingsContainer">
-        <!-- Rendered dynamically as detailed 3D rows/cards -->
-        <div class="py-16 text-center text-slate-500 glass rounded-[2rem]"><i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>Fetching booking records...</div>
-      </div>
-      
-      <p id="dashMsg" class="text-xs text-slate-500 font-semibold text-center mt-2"></p>
+      <!-- Bookings list -->
+      <div id="bookingsList" class="flex flex-col gap-3"></div>
+      <p id="dashMsg" class="text-xs text-slate-500 text-center"></p>
     </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="mt-auto border-t border-white/5 bg-slate-950 py-6 relative z-10">
-    <div class="max-w-7xl mx-auto px-6 text-center text-xs text-slate-600">
-      <p>&copy; 2026 EVOLT Admin Control Center. Interactive 3D Session.</p>
-    </div>
+  <footer class="relative z-10 border-t border-white/5 mt-auto py-5 text-center text-xs text-slate-600">
+    &copy; 2026 EVOLT Admin Center — Authorized Access Only
   </footer>
 
-  <!-- Scripts -->
   <script>
-    const statusOptions = ["pending", "in_progress", "completed", "cancelled"];
-    const state = {
-      bookings: [],
-      currentFilter: 'all',
-      searchQuery: '',
-      whatsappNumber: '9454386338'
-    };
+    const STATUS_OPTIONS = ['pending','in_progress','completed','cancelled'];
+    const ICON_MAP = { 'fan-repair':'fan','switch-socket':'plug','wiring':'zap','ac-repair':'snowflake','geyser':'droplet','inverter':'battery-charging','lighting':'lightbulb','mcb-fuse':'shield-alert','doorbell':'bell','appliance':'tv','stabilizer':'gauge','emergency':'siren' };
+    const s = { bookings: [], filter: 'all', search: '', whatsapp: '9454386338' };
 
-    const iconMap = {
-      'fan-repair': 'fan',
-      'switch-socket': 'plug',
-      'wiring': 'zap',
-      'ac-repair': 'snowflake',
-      'geyser': 'droplet',
-      'inverter': 'battery-charging',
-      'lighting': 'lightbulb',
-      'mcb-fuse': 'shield-alert',
-      'doorbell': 'bell',
-      'appliance': 'tv',
-      'stabilizer': 'gauge',
-      'emergency': 'siren'
-    };
-
-    // 3D Tilt script
-    function apply3DTilt(selector, sensitivity = 10) {
-      document.querySelectorAll(selector).forEach(el => {
-        if (!el.querySelector('.glare-reflection')) {
-          const glare = document.createElement("div");
-          glare.className = "glare-reflection absolute inset-0 pointer-events-none rounded-[inherit] opacity-0 transition-opacity duration-300 z-10";
-          el.appendChild(glare);
-        }
-        const glare = el.querySelector('.glare-reflection');
-        el.style.transformStyle = "preserve-3d";
-        el.style.transition = "transform 0.1s ease, box-shadow 0.1s ease";
-        
-        el.addEventListener("mousemove", (e) => {
-          const rect = el.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          
-          const xc = rect.width / 2;
-          const yc = rect.height / 2;
-          
-          const rotateX = (yc - y) / sensitivity;
-          const rotateY = (x - xc) / sensitivity;
-          
-          el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.015, 1.015, 1.015)`;
-          
-          if (glare) {
-            glare.style.opacity = "1";
-            const percentX = (x / rect.width) * 100;
-            const percentY = (y / rect.height) * 100;
-            glare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 80%)`;
-          }
-        });
-        
-        el.addEventListener("mouseleave", () => {
-          el.style.transition = "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
-          el.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
-          if (glare) glare.style.opacity = "0";
-        });
-      });
+    function formatDate(iso) {
+      if (!iso) return '-';
+      try {
+        const d = new Date(iso);
+        if (isNaN(d)) return iso;
+        const p = n => String(n).padStart(2,'0');
+        return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+      } catch { return iso; }
     }
 
+    function statusClass(st) {
+      return `status-${st}`;
+    }
+
+    // Toast
+    function toast(title, msg, err=false) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMsg').textContent = msg;
+      const ic = document.getElementById('toastIcon');
+      if (err) {
+        ic.className = 'w-7 h-7 rounded-lg flex items-center justify-center bg-red-500/15 text-red-400 border border-red-500/20 shrink-0';
+        ic.innerHTML = '<i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>';
+      } else {
+        ic.className = 'w-7 h-7 rounded-lg flex items-center justify-center bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 shrink-0';
+        ic.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i>';
+      }
+      lucide.createIcons();
+      t.classList.remove('opacity-0','pointer-events-none','translate-y-[-12px]');
+      t.classList.add('opacity-100','translate-y-0');
+      setTimeout(()=>{ t.classList.add('opacity-0','pointer-events-none','translate-y-[-12px]'); t.classList.remove('opacity-100','translate-y-0'); }, 3000);
+    }
+
+    // Map modal
+    function openMap(lat, lng) {
+      const q=`${lat},${lng}`;
+      document.getElementById('modalMapFrame').src=`https://maps.google.com/maps?q=${q}&z=15&output=embed`;
+      document.getElementById('modalCoords').textContent=`GPS: ${q}`;
+      document.getElementById('modalMapsLink').href=`https://www.google.com/maps?q=${q}`;
+      const m=document.getElementById('mapModal');
+      m.classList.remove('opacity-0','pointer-events-none');
+    }
+    function closeMap() {
+      const m=document.getElementById('mapModal');
+      m.classList.add('opacity-0','pointer-events-none');
+      setTimeout(()=>document.getElementById('modalMapFrame').src='', 300);
+    }
+
+    // Auth
     async function checkAuth() {
       try {
-        const r = await fetch("/api/admin/me", { credentials: "include" });
+        const r = await fetch('/api/admin/me');
         if (!r.ok) throw new Error();
-        showDashboard();
-      } catch {
-        showLogin();
-      }
+        showDash();
+      } catch { showLogin(); }
     }
 
     function showLogin() {
-      document.getElementById("loginCard").classList.remove("hidden", "opacity-0");
-      document.getElementById("dashboard").classList.add("hidden");
-      document.getElementById("logoutBtn").classList.add("hidden");
-      
-      apply3DTilt("#loginCard", 12);
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('dashScreen').classList.add('hidden');
+      document.getElementById('logoutBtn').classList.add('hidden');
     }
-
-    function showDashboard() {
-      document.getElementById("loginCard").classList.add("hidden");
-      document.getElementById("dashboard").classList.remove("hidden");
-      document.getElementById("logoutBtn").classList.remove("hidden");
-      loadDashboard();
+    function showDash() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('dashScreen').classList.remove('hidden');
+      document.getElementById('dashScreen').classList.add('flex');
+      document.getElementById('logoutBtn').classList.remove('hidden');
+      loadDash();
     }
 
     async function login() {
-      const pin = document.getElementById("pinInput").value.trim();
-      const msg = document.getElementById("loginMsg");
-      const card = document.getElementById("loginCard");
-      msg.textContent = "Verifying Credentials...";
-      msg.className = "text-center text-xs font-medium text-blue-400";
-      
+      const pin = document.getElementById('pinInput').value.trim();
+      const msg = document.getElementById('loginMsg');
+      msg.textContent = 'Verifying…'; msg.className = 'text-center text-xs text-blue-400';
       try {
-        const r = await fetch("/api/admin/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ pin })
-        });
-        const data = await r.json();
-        
-        if (!r.ok) throw new Error(data.detail || "Incorrect PIN code");
-        
-        msg.textContent = "Authorized successfully!";
-        msg.className = "text-center text-xs font-medium text-emerald-400";
-        showToast("Access Granted", "Welcome back, Admin.");
-        setTimeout(showDashboard, 600);
+        const r = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({pin}) });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.detail || 'Wrong PIN');
+        toast('Access Granted', 'Welcome back, Admin.');
+        setTimeout(showDash, 400);
       } catch (e) {
-        msg.textContent = e.message;
-        msg.className = "text-center text-xs font-medium text-red-400";
-        
-        // Shake card
-        card.classList.add("shake");
-        setTimeout(() => card.classList.remove("shake"), 400);
+        msg.textContent = e.message; msg.className = 'text-center text-xs text-red-400';
+        const card = document.getElementById('loginCard');
+        card.classList.add('shake');
+        setTimeout(()=>card.classList.remove('shake'), 400);
       }
     }
 
-    async function loadDashboard() {
-      const msg = document.getElementById("dashMsg");
-      msg.textContent = "Syncing administrative records...";
-      
+    async function loadDash() {
+      const msg = document.getElementById('dashMsg');
+      msg.textContent = 'Loading…';
       try {
-        const [statsResp, bookingsResp, servicesResp, healthResp] = await Promise.all([
-          fetch("/api/bookings/stats", { credentials: "include" }),
-          fetch("/api/bookings", { credentials: "include" }),
-          fetch("/api/services"),
-          fetch("/api/health")
-        ]);
-        
-        if (!statsResp.ok || !bookingsResp.ok) throw new Error("Could not retrieve system records");
-        
-        const stats = await statsResp.json();
-        const bookingsData = await bookingsResp.json();
-        
-        if (servicesResp.ok) {
-          const sData = await servicesResp.json();
-          state.whatsappNumber = sData.whatsapp || "9454386338";
-        }
+        const [sr, br, svr] = await Promise.all([ fetch('/api/bookings/stats'), fetch('/api/bookings'), fetch('/api/services') ]);
+        if (!sr.ok || !br.ok) throw new Error('Failed to load data');
+        const stats = await sr.json();
+        const bookings = await br.json();
+        if (svr.ok) { const sv = await svr.json(); s.whatsapp = sv.whatsapp || '9454386338'; }
 
-        document.getElementById("stTotal").textContent = stats.total || 0;
-        document.getElementById("stPending").textContent = stats.pending || 0;
-        document.getElementById("stProgress").textContent = stats.in_progress || 0;
-        document.getElementById("stCompleted").textContent = stats.completed || 0;
+        document.getElementById('stTotal').textContent = stats.total || 0;
+        document.getElementById('stPending').textContent = stats.pending || 0;
+        document.getElementById('stProgress').textContent = stats.in_progress || 0;
+        document.getElementById('stCompleted').textContent = stats.completed || 0;
 
-        state.bookings = bookingsData.bookings || [];
-        filterAndRenderBookings();
-
-        if (healthResp.ok) {
-          const health = await healthResp.json();
-          const dbLabel = health.mongodb === "connected" ? "MongoDB connected" : "MongoDB offline (using backup storage)";
-          msg.textContent = `Displaying ${state.bookings.length} bookings • ${dbLabel}`;
-        }
-
-        // Load 3D tilt on stats
-        apply3DTilt(".stat-card", 18);
-
+        s.bookings = bookings.bookings || [];
+        renderBookings();
       } catch (e) {
-        msg.textContent = `Sync Error: ${e.message}`;
-        showToast("Sync Error", e.message, true);
+        msg.textContent = `Error: ${e.message}`;
+        toast('Load Failed', e.message, true);
       }
     }
 
-    function filterAndRenderBookings() {
-      let filtered = [...state.bookings];
-      
-      if (state.currentFilter !== 'all') {
-        filtered = filtered.filter(b => b.status === state.currentFilter);
+    function renderBookings() {
+      let list = [...s.bookings];
+      if (s.filter !== 'all') list = list.filter(b => b.status === s.filter);
+      if (s.search) {
+        const q = s.search.toLowerCase();
+        list = list.filter(b => [b.booking_id, b.customer_name, b.phone, b.address, b.service_title].some(v => (v||'').toLowerCase().includes(q)));
       }
-      
-      if (state.searchQuery) {
-        const q = state.searchQuery.toLowerCase();
-        filtered = filtered.filter(b => 
-          (b.booking_id || '').toLowerCase().includes(q) ||
-          (b.customer_name || '').toLowerCase().includes(q) ||
-          (b.phone || '').toLowerCase().includes(q) ||
-          (b.address || '').toLowerCase().includes(q) ||
-          (b.service_title || '').toLowerCase().includes(q)
-        );
-      }
-      
-      renderBookingCards(filtered);
-      
-      const msg = document.getElementById("dashMsg");
-      msg.textContent = `Displaying ${filtered.length} of ${state.bookings.length} system bookings`;
-    }
 
-    function getStatusColorClass(status) {
-      switch (status) {
-        case 'pending': return 'text-amber-400 bg-amber-950/20 border-amber-500/20';
-        case 'in_progress': return 'text-blue-400 bg-blue-950/20 border-blue-500/20';
-        case 'completed': return 'text-emerald-400 bg-emerald-950/20 border-emerald-500/20';
-        case 'cancelled': return 'text-red-400 bg-red-950/20 border-red-500/20';
-        default: return 'text-slate-400 bg-slate-900 border-white/5';
-      }
-    }
+      const container = document.getElementById('bookingsList');
+      const msg = document.getElementById('dashMsg');
 
-    function formatDateTime(isoString) {
-      if (!isoString) return "-";
-      try {
-        const d = new Date(isoString);
-        if (isNaN(d.getTime())) return isoString;
-        const pad = (n) => String(n).padStart(2, '0');
-        const year = d.getFullYear();
-        const month = pad(d.getMonth() + 1);
-        const day = pad(d.getDate());
-        const hours = pad(d.getHours());
-        const minutes = pad(d.getMinutes());
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
-      } catch {
-        return isoString;
-      }
-    }
-
-    function renderBookingCards(bookings) {
-      const container = document.getElementById("bookingsContainer");
-      
-      if (bookings.length === 0) {
-        container.innerHTML = `<div class="py-16 text-center text-slate-500 glass rounded-[2rem]"><i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>No bookings found matching selected filters.</div>`;
+      if (!list.length) {
+        container.innerHTML = `<div class="card py-14 text-center text-slate-500 flex flex-col items-center gap-2"><i data-lucide="inbox" class="w-8 h-8 opacity-40"></i><p>No bookings found</p></div>`;
+        msg.textContent = '';
         lucide.createIcons();
         return;
       }
 
-      container.innerHTML = bookings.map((b) => {
-        const iconName = iconMap[b.service_id] || 'zap';
-        const cleanPhone = b.phone ? b.phone.replace(/\D/g, '') : '';
-        const whatsappText = encodeURIComponent(`Hello ${b.customer_name}, this is EVOLT Electric Service. We're contacting you regarding your booking ${b.booking_id} for ${b.service_title}.`);
-        const waLink = cleanPhone ? `https://wa.me/91${cleanPhone}?text=${whatsappText}` : '#';
-        
-        let mapBtn = `<span class="text-xs text-slate-600 flex items-center gap-1"><i data-lucide="map-pin-off" class="w-3.5 h-3.5"></i> Location N/A</span>`;
-        if (b.latitude && b.longitude) {
-          mapBtn = `
-            <button onclick="openMapModal(${b.latitude}, ${b.longitude})" class="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-semibold bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/20 shadow-sm transition">
-              <i data-lucide="map" class="w-3.5 h-3.5"></i> Open Location
-            </button>
-          `;
-        }
+      container.innerHTML = list.map(b => {
+        const icon = ICON_MAP[b.service_id] || 'zap';
+        const phone = (b.phone||'').replace(/\D/g,'');
+        const waMsg = encodeURIComponent(`Hello ${b.customer_name}, this is EVOLT Electric. Regarding your booking ${b.booking_id} for ${b.service_title}.`);
+        const waLink = phone ? `https://wa.me/91${phone}?text=${waMsg}` : '#';
+        const mapBtn = b.latitude && b.longitude
+          ? `<button onclick="openMap(${b.latitude},${b.longitude})" class="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-semibold bg-blue-500/10 px-2 py-1 rounded-lg border border-blue-500/20 transition"><i data-lucide="map" class="w-3 h-3"></i> Map</button>`
+          : `<span class="text-xs text-slate-600">No GPS</span>`;
 
-        const dateStr = formatDateTime(b.created_at);
-        const statusClass = getStatusColorClass(b.status);
-
+        const scClass = `status-sel ${statusClass(b.status)}`;
         return `
-          <div class="glass rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 booking-item tilt-3d relative overflow-hidden" id="item-${b.booking_id}">
-            <!-- Left Info Block -->
-            <div class="flex items-start gap-4">
-              <div class="w-11 h-11 shrink-0 rounded-xl bg-blue-600/10 text-blue-400 flex items-center justify-center border border-blue-500/15 depth-icon">
-                <i data-lucide="${iconName}" class="w-5 h-5"></i>
+          <div class="card booking-card p-5 flex flex-col md:flex-row gap-4 md:items-center justify-between rounded-2xl">
+            <!-- Left: service + booking info -->
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/15 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="${icon}" class="w-4 h-4"></i>
               </div>
-              <div class="depth-title">
-                <div class="flex items-center gap-2">
-                  <span class="text-xs font-mono font-bold text-blue-400 select-all">${b.booking_id}</span>
-                  <span class="text-[10px] text-slate-500 flex items-center gap-1"><i data-lucide="plus-circle" class="w-3 h-3"></i> ${dateStr}</span>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-xs font-bold text-blue-400 select-all">${b.booking_id}</span>
+                  <span class="text-[10px] text-slate-500">${formatDate(b.created_at)}</span>
                 </div>
-                <h4 class="text-base font-bold text-white mt-1 leading-snug">${b.service_title || "-"}</h4>
-                <p class="text-xs text-slate-400 mt-1 max-w-md">${b.address || "-"}</p>
-                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">${b.city || ""} ${b.pincode || ""}</p>
-              </div>
-            </div>
-            
-            <!-- Middle Contacts / Details -->
-            <div class="flex flex-col gap-1.5 depth-desc">
-              <span class="font-bold text-white text-sm">${b.customer_name || "-"}</span>
-              <div class="flex flex-wrap gap-3 items-center mt-0.5">
-                <a href="tel:${b.phone}" class="text-slate-400 hover:text-white transition flex items-center gap-1.5 text-xs">
-                  <i data-lucide="phone" class="w-3.5 h-3.5"></i> ${b.phone || "-"}
-                </a>
-                <a href="${waLink}" target="_blank" rel="noreferrer" class="text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1.5 text-xs font-bold">
-                  <i data-lucide="message-square" class="w-3.5 h-3.5 fill-emerald-400/5"></i> WhatsApp Customer
-                </a>
-              </div>
-              <div class="flex items-center gap-3 mt-1 justify-between md:justify-start">
-                <span class="text-xs text-slate-300 font-bold flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-lg border border-white/5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i> ${b.preferred_time || "Anytime"}</span>
-                ${mapBtn}
+                <p class="font-bold text-white text-sm mt-0.5">${b.service_title||'-'}</p>
+                <p class="text-xs text-slate-400 mt-0.5 truncate max-w-xs">${b.address||'-'}</p>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">${b.city||''} ${b.pincode||''}</p>
               </div>
             </div>
 
-            <!-- Right Status Dropdown Action -->
-            <div class="w-full md:w-auto flex flex-col items-end gap-1.5 depth-badge">
-              <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">Booking Status</label>
-              <select data-id="${b.booking_id}" class="statusSel w-full md:w-40 text-xs font-bold rounded-xl px-3 py-2.5 border cursor-pointer outline-none transition-all ${statusClass}">
-                ${statusOptions.map((s) => `<option value="${s}" ${s === b.status ? "selected" : ""} class="bg-slate-950 text-slate-200 font-bold">${s.replace('_',' ')}</option>`).join("")}
-              </select>
+            <!-- Middle: contacts -->
+            <div class="flex flex-col gap-1.5 shrink-0">
+              <p class="font-semibold text-white text-sm">${b.customer_name||'-'}</p>
+              <a href="tel:${b.phone}" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
+                <i data-lucide="phone" class="w-3 h-3"></i> ${b.phone||'-'}
+              </a>
+              <a href="${waLink}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold transition">
+                <i data-lucide="message-square" class="w-3 h-3"></i> WhatsApp
+              </a>
+              ${b.preferred_time ? `<p class="text-[10px] text-slate-500 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${b.preferred_time}</p>` : ''}
             </div>
-          </div>
-        `;
-      }).join("");
 
-      // Bind dynamic status changes
-      document.querySelectorAll(".statusSel").forEach((el) => {
-        el.addEventListener("change", async (ev) => {
-          const bookingId = ev.target.getAttribute("data-id");
-          const newStatus = ev.target.value;
-          
+            <!-- Right: map + status -->
+            <div class="flex flex-col items-start md:items-end gap-2 shrink-0">
+              ${mapBtn}
+              <div>
+                <p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold mb-1">Status</p>
+                <select data-id="${b.booking_id}" class="${scClass}">
+                  ${STATUS_OPTIONS.map(st => `<option value="${st}" ${st===b.status?'selected':''} class="bg-slate-950 text-slate-100">${st.replace('_',' ')}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Status change listeners
+      container.querySelectorAll('.status-sel').forEach(sel => {
+        sel.addEventListener('change', async ev => {
+          const id = ev.target.getAttribute('data-id');
+          const ns = ev.target.value;
           try {
-            const resp = await fetch(`/api/bookings/${bookingId}/status`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({ status: newStatus })
-            });
-            const data = await resp.json();
-            
-            if (!resp.ok) throw new Error(data.detail || "Failed to update status");
-            
-            showToast("Updated", `Status of ${bookingId} changed to ${newStatus.replace('_',' ')}.`);
-            loadDashboard();
-          } catch (err) {
-            showToast("Update Error", err.message, true);
-          }
+            const r = await fetch(`/api/bookings/${id}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({status:ns}) });
+            const d = await r.json();
+            if (!r.ok) throw new Error(d.detail||'Failed');
+            toast('Updated', `${id} → ${ns.replace('_',' ')}`);
+            loadDash();
+          } catch (e) { toast('Error', e.message, true); }
         });
       });
 
+      msg.textContent = `Showing ${list.length} of ${s.bookings.length} bookings`;
       lucide.createIcons();
-      apply3DTilt(".booking-item", 25);
     }
 
-    // Filter pill trigger logic
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".filter-btn").forEach(b => {
-          b.classList.remove("bg-white/10", "text-white", "shadow-inner");
-          b.classList.add("text-slate-400");
-        });
-        
-        btn.classList.remove("text-slate-400");
-        btn.classList.add("bg-white/10", "text-white", "shadow-inner");
-        
-        state.currentFilter = btn.getAttribute("data-filter");
-        filterAndRenderBookings();
+    // Filter tabs
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        s.filter = tab.getAttribute('data-filter');
+        renderBookings();
       });
     });
 
-    // Realtime Search Trigger
-    document.getElementById("searchInput").addEventListener("input", (e) => {
-      state.searchQuery = e.target.value;
-      filterAndRenderBookings();
+    // Search
+    document.getElementById('searchInput').addEventListener('input', e => {
+      s.search = e.target.value;
+      renderBookings();
     });
 
-    // Modal Control Functions (3D Swing entry triggers automatically)
-    function openMapModal(lat, lng) {
-      const modal = document.getElementById("mapModal");
-      const card = document.getElementById("mapModalCard");
-      const iframe = document.getElementById("modalMapFrame");
-      const coordsText = document.getElementById("modalCoordsText");
-      const mapsLink = document.getElementById("modalMapsLink");
-
-      const query = `${lat},${lng}`;
-      iframe.src = `https://maps.google.com/maps?q=${query}&z=15&output=embed`;
-      coordsText.textContent = `Coordinates: ${query}`;
-      mapsLink.href = `https://www.google.com/maps?q=${query}`;
-
-      modal.classList.remove("opacity-0", "pointer-events-none");
-    }
-
-    function closeMapModal() {
-      const modal = document.getElementById("mapModal");
-      const iframe = document.getElementById("modalMapFrame");
-
-      modal.classList.add("opacity-0", "pointer-events-none");
-      setTimeout(() => { iframe.src = ""; }, 300);
-    }
-
-    // Toast logic
-    function showToast(title, message, isError = false) {
-      const toast = document.getElementById("toast");
-      const icon = document.getElementById("toastIcon");
-      const toastTitle = document.getElementById("toastTitle");
-      const toastMsg = document.getElementById("toastMsg");
-
-      toastTitle.textContent = title;
-      toastMsg.textContent = message;
-
-      if (isError) {
-        toast.classList.replace("border-emerald-500/30", "border-red-500/30");
-        icon.className = "w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center border border-red-500/20";
-        icon.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i>`;
-      } else {
-        toast.classList.replace("border-red-500/30", "border-emerald-500/30");
-        icon.className = "w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/20";
-        icon.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
-      }
-      lucide.createIcons();
-
-      toast.classList.remove("opacity-0", "translate-y-[-20px]", "pointer-events-none");
-      toast.classList.add("opacity-100", "translate-y-0");
-
-      setTimeout(() => {
-        toast.classList.remove("opacity-100", "translate-y-0");
-        toast.classList.add("opacity-0", "translate-y-[-20px]", "pointer-events-none");
-      }, 3000);
-    }
-
+    // Logout
     async function logout() {
-      try {
-        await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
-        showToast("Success", "Logged out successfully.");
-        showLogin();
-      } catch (err) {
-        showToast("Error", "Logout failed.", true);
-      }
+      await fetch('/api/admin/logout', {method:'POST'});
+      toast('Logged out', 'Session ended.');
+      showLogin();
     }
 
-    document.querySelector('[data-filter="all"]').classList.add("bg-white/10", "text-white");
-    
-    // Bindings
-    document.getElementById("loginBtn").addEventListener("click", login);
-    document.getElementById("logoutBtn").addEventListener("click", logout);
-    document.getElementById("pinInput").addEventListener("keypress", (e) => {
-      if (e.key === "Enter") login();
-    });
+    document.getElementById('loginBtn').addEventListener('click', login);
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('pinInput').addEventListener('keypress', e => { if (e.key==='Enter') login(); });
 
     checkAuth();
   </script>

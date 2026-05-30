@@ -3,406 +3,340 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EVOLT - Premium 3D Electric Home Services</title>
-  <!-- Google Fonts -->
+  <title>EVOLT - Electric Home Services | Book Now</title>
+  <meta name="description" content="Book verified electricians for fan repair, wiring, AC service, MCB and emergency 24x7 at home. Fast, affordable, doorstep service." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Tailwind CSS CDN -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #020617; /* slate-950 */
-      overflow-x: hidden;
-      perspective: 1200px;
-    }
-    h1, h2, h3, h4, .font-heading {
-      font-family: 'Outfit', sans-serif;
-    }
-    
-    /* 3D Perspective Grid Background */
-    .perspective-grid {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 150%;
-      background-image: 
-        linear-gradient(rgba(59, 130, 246, 0.05) 1.5px, transparent 1.5px),
-        linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1.5px, transparent 1.5px);
-      background-size: 60px 60px;
-      background-position: center top;
-      transform: perspective(600px) rotateX(65deg) translateY(-250px) translateZ(-150px);
-      mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
-      -webkit-mask-image: linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
-      opacity: 0.6;
-      pointer-events: none;
-      z-index: 0;
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #030712; }
+    h1,h2,h3,h4 { font-family: 'Outfit', sans-serif; }
+
+    /* Glass card */
+    .card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1.25rem;
+      backdrop-filter: blur(12px);
     }
 
-    .glass {
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-    }
-    
-    .glass-input {
-      background: rgba(30, 41, 59, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-    .glass-input:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
-      background: rgba(30, 41, 59, 0.7);
-      transform: translateZ(5px);
-    }
-    
+    /* Gradient accent */
     .gradient-text {
-      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #22d3ee 100%);
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 60%, #22d3ee 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    /* 3D Button Press Effect */
-    .btn-3d {
-      position: relative;
-      transform-style: preserve-3d;
-      transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
-      border-bottom: 4px solid #1d4ed8;
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25);
-    }
-    .btn-3d:hover {
-      transform: translateY(-2px);
-      border-bottom-width: 6px;
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
-    }
-    .btn-3d:active {
-      transform: translateY(4px);
-      border-bottom-width: 0px;
-      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15);
-    }
-
-    .btn-3d-emerald {
-      position: relative;
-      transform-style: preserve-3d;
-      transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
-      border-bottom: 4px solid #047857;
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
-    }
-    .btn-3d-emerald:hover {
-      transform: translateY(-2px);
-      border-bottom-width: 6px;
-      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
-    }
-    .btn-3d-emerald:active {
-      transform: translateY(4px);
-      border-bottom-width: 0px;
-      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.15);
-    }
-
-    /* 3D Parallax Layering Properties */
-    .tilt-3d {
-      transform-style: preserve-3d;
-      transition: transform 0.1s ease;
-    }
-    .depth-icon {
-      transform: translateZ(40px);
-    }
-    .depth-title {
-      transform: translateZ(25px);
-    }
-    .depth-desc {
-      transform: translateZ(12px);
-    }
-    .depth-badge {
-      transform: translateZ(20px);
-    }
-
+    /* Service cards */
     .service-card {
-      transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(15,23,42,0.7);
+      border: 1.5px solid rgba(255,255,255,0.06);
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: border-color .2s, background .2s, box-shadow .2s;
     }
     .service-card:hover {
-      border-color: rgba(96, 165, 250, 0.4);
-      box-shadow: 0 15px 35px rgba(37, 99, 235, 0.2);
+      border-color: rgba(96,165,250,0.4);
+      background: rgba(37,99,235,0.07);
+      box-shadow: 0 4px 20px rgba(37,99,235,0.12);
     }
-    .service-card.active {
+    .service-card.selected {
       border-color: #3b82f6;
-      background: rgba(37, 99, 235, 0.12);
-      box-shadow: 0 0 30px rgba(37, 99, 235, 0.3);
+      background: rgba(37,99,235,0.13);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.18), 0 4px 20px rgba(37,99,235,0.18);
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
+    /* Inputs */
+    .field {
+      background: rgba(30,41,59,0.5);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: .75rem;
+      color: #e2e8f0;
+      transition: border-color .2s, box-shadow .2s;
+      width: 100%;
+      padding: .75rem 1rem;
+      font-size: .875rem;
+      outline: none;
     }
-    ::-webkit-scrollbar-track {
-      background: #020617;
+    .field:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
     }
-    ::-webkit-scrollbar-thumb {
-      background: #1e293b;
-      border-radius: 4px;
+    .field::placeholder { color: #475569; }
+
+    /* Primary button */
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      color: #fff;
+      font-weight: 700;
+      padding: .875rem 1.5rem;
+      border-radius: .875rem;
+      border: none;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      font-size: .95rem; letter-spacing: .01em;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #3b82f6;
+    .btn-primary:hover { opacity: .92; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); opacity: 1; }
+
+    .btn-emerald {
+      background: #059669;
+      color: #fff;
+      font-weight: 600;
+      padding: .6rem 1.1rem;
+      border-radius: .75rem;
+      border: none;
+      cursor: pointer;
+      transition: background .2s;
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .8rem;
     }
+    .btn-emerald:hover { background: #047857; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #030712; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+    /* Status pill */
+    .badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      font-size: .7rem; font-weight: 700; padding: .25rem .6rem; border-radius: 999px;
+    }
+    .badge-blue { background: rgba(59,130,246,.15); color: #93c5fd; border: 1px solid rgba(59,130,246,.2); }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white relative">
-  
-  <!-- Perspective Retro Grid & Glowing Orbs -->
-  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="perspective-grid"></div>
-    <div class="absolute top-[5%] left-[5%] w-[45%] h-[50%] rounded-full bg-blue-900/10 blur-[130px]"></div>
-    <div class="absolute bottom-[10%] right-[5%] w-[45%] h-[50%] rounded-full bg-cyan-900/10 blur-[130px]"></div>
+<body class="text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Ambient background blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-blue-900/15 blur-3xl"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-cyan-900/10 blur-3xl"></div>
   </div>
 
-  <!-- Header -->
-  <header class="sticky top-0 z-50 border-b border-white/5 bg-slate-950/70 backdrop-blur-md relative">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-          <i data-lucide="zap" class="w-6 h-6 text-white fill-white/20"></i>
+  <!-- HEADER -->
+  <header class="relative z-10 sticky top-0 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30">
+          <i data-lucide="zap" class="w-5 h-5 text-white"></i>
         </div>
         <div>
-          <span class="text-2xl font-extrabold tracking-tight text-white font-heading">EVOLT</span>
-          <span class="text-[10px] block text-blue-400 tracking-widest font-heading font-semibold uppercase leading-none">3D INTERACTIVE</span>
+          <p class="font-black text-xl text-white leading-none">EVOLT</p>
+          <p class="text-[10px] font-semibold text-blue-400 tracking-widest leading-none uppercase">Electric</p>
         </div>
       </div>
-      <div class="flex items-center gap-6">
-        <a href="/admin" class="text-sm font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl border border-white/5">
-          <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i> Admin Portal
-        </a>
-      </div>
+      <a href="/admin" class="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 px-3 py-2 rounded-xl transition">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-blue-400"></i> Admin
+      </a>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="relative z-10 max-w-6xl mx-auto px-6 pt-12 pb-6 text-center">
-    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-semibold text-blue-400 mb-6 animate-pulse">
-      <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Step Into the Future of Home Care
-    </div>
-    <h1 class="text-5xl md:text-7xl font-black font-heading tracking-tight mb-4 leading-tight">
-      Next-Gen Service Booking, <br>
-      <span class="gradient-text">Layered in 3D Depth.</span>
+  <!-- HERO -->
+  <section class="relative z-10 max-w-6xl mx-auto px-5 pt-10 pb-4 text-center">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-semibold text-blue-400 mb-5">
+      <i data-lucide="sparkles" class="w-3 h-3"></i> Same-day doorstep electricians
+    </span>
+    <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-3">
+      Verified Electricians, <span class="gradient-text">On Demand.</span>
     </h1>
-    <p class="text-slate-400 max-w-2xl mx-auto text-base md:text-lg">
-      Book verified local electricians with an interactive 3D console. Move your mouse to explore features, select services, and place secure bookings.
+    <p class="text-slate-400 text-sm md:text-base max-w-xl mx-auto">
+      Fan repair, wiring, AC service, MCB, geyser, emergency 24×7 — book in under 2 minutes.
     </p>
   </section>
 
-  <!-- Main Booking Area -->
-  <main class="relative z-10 max-w-6xl mx-auto px-6 py-6 w-full flex flex-col gap-12 flex-grow">
-    
-    <!-- Service Catalog Grid Section -->
+  <main class="relative z-10 max-w-6xl mx-auto px-5 py-6 flex flex-col gap-8 flex-grow">
+
+    <!-- STEP 1: Service Grid -->
     <section>
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold font-heading text-white">1. Select a Service Catalog Card</h2>
-        <p class="text-sm text-slate-400">Hover cards to tilt them in 3D depth, then click to choose a service</p>
-      </div>
-      
-      <div id="servicesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <!-- Loaded dynamically -->
-        <div class="col-span-full py-16 flex flex-col items-center justify-center glass rounded-3xl text-slate-400">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"></div>
-          <p class="text-sm">Configuring 3D space...</p>
+      <h2 class="text-lg font-bold text-white mb-1">1. Choose a Service</h2>
+      <p class="text-xs text-slate-400 mb-4">Click a card to select your required service</p>
+      <div id="servicesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div class="col-span-full py-10 flex flex-col items-center text-slate-500 text-sm gap-2">
+          <div class="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          Loading services…
         </div>
       </div>
     </section>
 
-    <!-- Booking Details Form & Aside info -->
-    <section class="grid md:grid-cols-3 gap-8 items-start">
-      
-      <!-- Form Block -->
-      <div class="md:col-span-2 glass rounded-[2rem] p-6 md:p-8 flex flex-col tilt-3d" id="bookingFormContainer">
-        <h2 class="text-2xl font-bold font-heading text-white mb-2 depth-title">2. Booking Specifications</h2>
-        <p class="text-sm text-slate-400 mb-6 depth-desc">Provide your contact info, location details, and time preferences below.</p>
+    <!-- STEP 2: Booking Form + Sidebar -->
+    <section class="grid md:grid-cols-3 gap-6 items-start">
 
-        <form id="bookingForm" class="grid sm:grid-cols-2 gap-5 depth-desc">
-          <!-- Selected Service Hidden Dropdown (kept functional for scripts) -->
+      <!-- FORM -->
+      <div class="md:col-span-2 card p-6 md:p-8">
+        <h2 class="text-lg font-bold text-white mb-1">2. Your Details</h2>
+        <p class="text-xs text-slate-400 mb-6">Fill in your contact info, address and preferred time</p>
+
+        <form id="bookingForm" class="grid sm:grid-cols-2 gap-4">
+          <!-- Service select (synced to cards) -->
           <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Selected Service</label>
-            <select id="service_id" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3.5 text-slate-200 glass-input font-medium cursor-pointer" required>
-              <!-- Options loaded dynamically -->
-            </select>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Selected Service</label>
+            <select id="service_id" class="field" required></select>
           </div>
 
           <div>
-            <label for="customer_name" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Full Name</label>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Full Name</label>
             <div class="relative">
-              <input id="customer_name" type="text" class="w-full glass-input rounded-xl pl-10 pr-4 py-3.5 text-slate-200" placeholder="Ayush Sahu" required />
-              <i data-lucide="user" class="absolute left-3 top-4 w-4 h-4 text-slate-400"></i>
+              <input id="customer_name" type="text" class="field pl-9" placeholder="Ayush Sahu" required />
+              <i data-lucide="user" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
             </div>
           </div>
 
           <div>
-            <label for="phone" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Phone Number</label>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Phone</label>
             <div class="relative">
-              <input id="phone" type="tel" class="w-full glass-input rounded-xl pl-10 pr-4 py-3.5 text-slate-200" placeholder="9876543210" required />
-              <i data-lucide="phone" class="absolute left-3 top-4 w-4 h-4 text-slate-400"></i>
+              <input id="phone" type="tel" class="field pl-9" placeholder="9876543210" required />
+              <i data-lucide="phone" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
             </div>
           </div>
 
           <div>
-            <label for="email" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Email (Optional)</label>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Email (optional)</label>
             <div class="relative">
-              <input id="email" type="email" class="w-full glass-input rounded-xl pl-10 pr-4 py-3.5 text-slate-200" placeholder="name@domain.com" />
-              <i data-lucide="mail" class="absolute left-3 top-4 w-4 h-4 text-slate-400"></i>
+              <input id="email" type="email" class="field pl-9" placeholder="name@email.com" />
+              <i data-lucide="mail" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
             </div>
           </div>
 
           <div>
-            <label for="preferred_time" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Preferred Time</label>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Preferred Time</label>
             <div class="relative">
-              <input id="preferred_time" type="text" class="w-full glass-input rounded-xl pl-10 pr-4 py-3.5 text-slate-200" placeholder="Today 6:00 PM, ASAP, etc." />
-              <i data-lucide="calendar" class="absolute left-3 top-4 w-4 h-4 text-slate-400"></i>
+              <input id="preferred_time" type="text" class="field pl-9" placeholder="Today 6:00 PM, ASAP…" />
+              <i data-lucide="calendar" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
             </div>
           </div>
 
           <div class="sm:col-span-2">
-            <label for="address" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Service Address</label>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Address</label>
             <div class="relative">
-              <textarea id="address" rows="2.5" class="w-full glass-input rounded-xl pl-10 pr-4 py-3 text-slate-200 resize-none" placeholder="Flat/House No., Street name..." required></textarea>
-              <i data-lucide="map-pin" class="absolute left-3 top-4 w-4 h-4 text-slate-400"></i>
+              <textarea id="address" rows="2" class="field pl-9 resize-none" placeholder="Flat, building, street name…" required></textarea>
+              <i data-lucide="map-pin" class="absolute left-3 top-3 w-3.5 h-3.5 text-slate-500"></i>
             </div>
           </div>
 
           <div>
-            <label for="city" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">City</label>
-            <input id="city" type="text" class="w-full glass-input rounded-xl px-4 py-3.5 text-slate-200" placeholder="Mumbai" />
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">City</label>
+            <input id="city" type="text" class="field" placeholder="Mumbai" />
           </div>
 
           <div>
-            <label for="pincode" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Pincode</label>
-            <input id="pincode" type="text" class="w-full glass-input rounded-xl px-4 py-3.5 text-slate-200" placeholder="400001" />
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Pincode</label>
+            <input id="pincode" type="text" class="field" placeholder="400001" />
           </div>
 
           <div class="sm:col-span-2">
-            <label for="notes" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Issue Details</label>
-            <textarea id="notes" rows="3" class="w-full glass-input rounded-xl px-4 py-3 text-slate-200 resize-none" placeholder="Details about lighting flicker, fan replacement, or other needs..."></textarea>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Issue Details</label>
+            <textarea id="notes" rows="2" class="field resize-none" placeholder="Describe the issue briefly…"></textarea>
           </div>
 
-          <!-- Location Capture Panel -->
-          <div class="sm:col-span-2 bg-slate-900/50 border border-white/5 rounded-2xl p-5 mt-2 flex flex-col gap-4">
-            <div class="flex flex-wrap gap-4 items-center justify-between">
+          <!-- GPS Location panel -->
+          <div class="sm:col-span-2 bg-slate-900/60 border border-white/5 rounded-xl p-4 flex flex-col gap-3">
+            <div class="flex items-center justify-between flex-wrap gap-3">
               <div>
-                <h4 class="text-sm font-semibold text-white">Technician GPS Location</h4>
-                <p class="text-xs text-slate-400">Share precise location for quicker doorstep delivery</p>
+                <p class="text-sm font-semibold text-white">Share GPS Location</p>
+                <p class="text-xs text-slate-400">Helps technician reach faster</p>
               </div>
-              <button type="button" id="locBtn" class="flex items-center gap-2 text-white font-bold text-xs px-4 py-3 rounded-xl transition-all btn-3d-emerald">
-                <i data-lucide="locate-fixed" class="w-4 h-4"></i> Capture GPS
+              <button type="button" id="locBtn" class="btn-emerald">
+                <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i> Get Location
               </button>
             </div>
-            
-            <div id="locStatusBlock" class="flex justify-between items-center px-4 py-2.5 rounded-lg bg-slate-950 border border-white/5 text-xs text-slate-400">
-              <span id="locText" class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span> Location not shared yet
+
+            <div class="flex items-center justify-between bg-slate-950 border border-white/5 rounded-lg px-3 py-2 text-xs">
+              <span id="locText" class="text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slate-600"></span> Not shared yet
               </span>
-              <a id="mapsLink" target="_blank" rel="noreferrer" class="text-blue-400 hover:text-blue-300 font-semibold hidden flex items-center gap-1">
-                Open in Maps <i data-lucide="external-link" class="w-3 h-3"></i>
-              </a>
+              <a id="mapsLink" href="#" target="_blank" class="text-blue-400 font-semibold hidden hover:text-blue-300">View Map →</a>
             </div>
 
-            <!-- Manual coordinates -->
-            <div class="border-t border-white/5 pt-4">
-              <details class="group cursor-pointer">
-                <summary class="text-xs text-slate-400 select-none hover:text-white flex items-center justify-between">
-                  <span>Coordinates manual entry</span>
-                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition group-open:rotate-180"></i>
-                </summary>
-                <div class="grid sm:grid-cols-2 gap-3 mt-3">
-                  <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Latitude</label>
-                    <input id="manualLat" type="number" step="any" placeholder="19.0760" class="glass-input rounded-lg px-3 py-2.5 text-xs text-slate-200" />
-                  </div>
-                  <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Longitude</label>
-                    <input id="manualLng" type="number" step="any" placeholder="72.8777" class="glass-input rounded-lg px-3 py-2.5 text-xs text-slate-200" />
-                  </div>
+            <!-- Manual coords -->
+            <details class="group">
+              <summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 flex items-center gap-1 select-none">
+                <i data-lucide="chevron-right" class="w-3 h-3 transition group-open:rotate-90"></i>
+                Enter coordinates manually
+              </summary>
+              <div class="mt-2 grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Latitude</label>
+                  <input id="manualLat" type="number" step="any" class="field mt-1 text-xs" placeholder="19.0760" />
                 </div>
-                <button type="button" id="manualLocBtn" class="mt-3 w-full bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs py-2.5 rounded-lg transition-all active:scale-[0.98]">
-                  Apply Manual Coordinates
-                </button>
-              </details>
-            </div>
+                <div>
+                  <label class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Longitude</label>
+                  <input id="manualLng" type="number" step="any" class="field mt-1 text-xs" placeholder="72.8777" />
+                </div>
+                <button type="button" id="manualLocBtn" class="col-span-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-2 rounded-lg transition">Apply Coordinates</button>
+              </div>
+            </details>
 
-            <!-- Map frame -->
-            <div class="relative w-full overflow-hidden rounded-xl hidden" id="mapFrameContainer">
-              <iframe id="mapFrame" class="w-full h-56 rounded-xl border border-white/10" loading="lazy"></iframe>
+            <div id="mapFrameContainer" class="hidden rounded-xl overflow-hidden border border-white/10">
+              <iframe id="mapFrame" class="w-full h-48" loading="lazy"></iframe>
             </div>
           </div>
 
-          <div class="sm:col-span-2 pt-4">
-            <button type="submit" class="w-full py-4 text-white font-bold tracking-wide rounded-xl btn-3d flex items-center justify-center gap-2 text-base">
-              <i data-lucide="calendar-check" class="w-5 h-5"></i> Confirm Booking Request
+          <div class="sm:col-span-2">
+            <button type="submit" class="btn-primary w-full">
+              <i data-lucide="calendar-check" class="w-4 h-4"></i> Confirm Booking
             </button>
           </div>
         </form>
 
-        <div id="result" class="mt-4 text-center rounded-xl p-3 text-sm font-semibold hidden depth-desc"></div>
+        <div id="result" class="hidden mt-4 rounded-xl p-4 text-sm text-center font-semibold"></div>
       </div>
 
-      <!-- Sidebar -->
-      <aside class="flex flex-col gap-6 w-full">
-        <!-- Emergency -->
-        <div class="bg-gradient-to-br from-red-950/40 to-slate-950 border border-red-500/20 rounded-[2rem] p-6 relative overflow-hidden tilt-3d" id="emergencyCard">
-          <div class="absolute -right-8 -top-8 w-24 h-24 bg-red-600/10 rounded-full blur-xl"></div>
-          <div class="flex items-center gap-3 mb-4 depth-title">
-            <div class="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-400 depth-icon">
-              <i data-lucide="siren" class="w-5 h-5 animate-pulse"></i>
+      <!-- SIDEBAR -->
+      <aside class="flex flex-col gap-4">
+        <!-- Emergency CTA -->
+        <div class="card p-5 border-red-500/15 bg-red-950/10">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/25 text-red-400 flex items-center justify-center">
+              <i data-lucide="siren" class="w-4 h-4 animate-pulse"></i>
             </div>
             <div>
-              <h3 class="font-bold text-white font-heading">Emergency</h3>
-              <p class="text-[10px] text-red-400 uppercase tracking-widest font-semibold font-heading leading-none mt-0.5">24x7 Direct Dispatch</p>
+              <p class="font-bold text-sm text-white">Emergency 24×7</p>
+              <p class="text-[10px] text-red-400 font-semibold uppercase tracking-wider">Urgent Dispatch</p>
             </div>
           </div>
-          <p class="text-sm text-slate-300 mb-5 leading-relaxed depth-desc">
-            Having power tripping, smoke, sparks or electric emergencies? Message support now to request direct dispatch.
-          </p>
-          <a href="#" id="whatsappBtn" class="flex items-center justify-center gap-2 text-white font-bold py-4 px-4 rounded-xl transition duration-300 btn-3d-emerald depth-desc w-full">
-            <i data-lucide="message-square" class="w-4 h-4 fill-white/10"></i> Contact Support WhatsApp
+          <p class="text-xs text-slate-400 mb-4 leading-relaxed">Sparking, power outage, short circuit? Get a technician dispatched instantly.</p>
+          <a id="whatsappBtn" href="#" class="btn-emerald w-full justify-center">
+            <i data-lucide="message-square" class="w-3.5 h-3.5"></i> WhatsApp Support
           </a>
-          <p class="text-center text-[11px] text-slate-500 mt-3" id="whatsappLabel">Connecting Support Line...</p>
+          <p id="whatsappLabel" class="text-center text-[10px] text-slate-500 mt-2">Connecting…</p>
         </div>
 
-        <!-- Trust factors -->
-        <div class="glass rounded-[2rem] p-6 flex flex-col gap-6">
-          <h3 class="font-bold text-lg font-heading text-white">Trust Factors</h3>
-          
-          <div class="flex gap-4">
-            <div class="w-10 h-10 shrink-0 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center">
-              <i data-lucide="user-check" class="w-5 h-5"></i>
+        <!-- Trust -->
+        <div class="card p-5">
+          <p class="font-bold text-sm text-white mb-4">Our Guarantees</p>
+          <div class="flex flex-col gap-4">
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 shrink-0 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mt-0.5">
+                <i data-lucide="user-check" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">Verified Technicians</p>
+                <p class="text-xs text-slate-400">Background-checked & certified</p>
+              </div>
             </div>
-            <div>
-              <h4 class="text-sm font-semibold text-white">Certified Technicians</h4>
-              <p class="text-xs text-slate-400 mt-0.5">Every tech is fully background-screened and certified.</p>
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 shrink-0 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mt-0.5">
+                <i data-lucide="coins" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">Transparent Pricing</p>
+                <p class="text-xs text-slate-400">No hidden charges, ever</p>
+              </div>
             </div>
-          </div>
-
-          <div class="flex gap-4">
-            <div class="w-10 h-10 shrink-0 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center">
-              <i data-lucide="coins" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-semibold text-white">Upfront Price Estimates</h4>
-              <p class="text-xs text-slate-400 mt-0.5">Zero hidden pricing models. Pay exactly what's quoted.</p>
-            </div>
-          </div>
-
-          <div class="flex gap-4">
-            <div class="w-10 h-10 shrink-0 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center">
-              <i data-lucide="clock" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-semibold text-white">Swift Support Services</h4>
-              <p class="text-xs text-slate-400 mt-0.5">A technician reaches your home in 30-90 minutes.</p>
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 shrink-0 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mt-0.5">
+                <i data-lucide="clock" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">30-90 Min Arrival</p>
+                <p class="text-xs text-slate-400">Swift doorstep service</p>
+              </div>
             </div>
           </div>
         </div>
@@ -410,298 +344,133 @@
     </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="mt-16 border-t border-white/5 bg-slate-950/70 py-8 relative z-10">
-    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-      <p>&copy; 2026 EVOLT Electric. All rights reserved. 3D Web Environment.</p>
-      <div class="flex items-center gap-6">
-        <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i> SSL Guarded</span>
-        <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-blue-500"></i> ISO Accredited</span>
-      </div>
-    </div>
+  <footer class="relative z-10 border-t border-white/5 mt-8 py-6 text-center text-xs text-slate-600">
+    &copy; 2026 EVOLT Electric Home Services. All rights reserved.
   </footer>
 
-  <!-- Scripts -->
   <script>
-    const state = { services: [], latitude: null, longitude: null };
-    const iconMap = {
-      'Fan': 'fan',
-      'Plugs': 'plug',
-      'Lightning': 'zap',
-      'Snowflake': 'snowflake',
-      'Drop': 'droplet',
-      'BatteryCharging': 'battery-charging',
-      'Lightbulb': 'lightbulb',
-      'ShieldCheck': 'shield-check',
-      'Bell': 'bell',
-      'Television': 'tv',
-      'GaugeCircle': 'gauge',
-      'Siren': 'siren'
-    };
-
-    // Generic 3D mouse tilt with glare reflection function
-    function apply3DTilt(selector, sensitivity = 10) {
-      document.querySelectorAll(selector).forEach(el => {
-        // Add reflection glare element if not present
-        if (!el.querySelector('.glare-reflection')) {
-          const glare = document.createElement("div");
-          glare.className = "glare-reflection absolute inset-0 pointer-events-none rounded-[inherit] opacity-0 transition-opacity duration-300 z-10";
-          el.appendChild(glare);
-        }
-        
-        const glare = el.querySelector('.glare-reflection');
-        el.style.transformStyle = "preserve-3d";
-        el.style.transition = "transform 0.1s ease, box-shadow 0.1s ease";
-        
-        el.addEventListener("mousemove", (e) => {
-          const rect = el.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          
-          const xc = rect.width / 2;
-          const yc = rect.height / 2;
-          
-          const rotateX = (yc - y) / sensitivity;
-          const rotateY = (x - xc) / sensitivity;
-          
-          el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-          
-          // Glare update
-          if (glare) {
-            glare.style.opacity = "1";
-            const percentX = (x / rect.width) * 100;
-            const percentY = (y / rect.height) * 100;
-            glare.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 80%)`;
-          }
-        });
-        
-        el.addEventListener("mouseleave", () => {
-          el.style.transition = "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
-          el.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
-          if (glare) glare.style.opacity = "0";
-        });
-      });
-    }
+    const state = { services: [], lat: null, lng: null };
+    const iconMap = { Fan:'fan', Plugs:'plug', Lightning:'zap', Snowflake:'snowflake', Drop:'droplet', BatteryCharging:'battery-charging', Lightbulb:'lightbulb', ShieldCheck:'shield-check', Bell:'bell', Television:'tv', GaugeCircle:'gauge', Siren:'siren' };
 
     async function loadServices() {
       try {
-        const resp = await fetch("/api/services");
-        const data = await resp.json();
+        const res = await fetch('/api/services');
+        const data = await res.json();
         state.services = data.services || [];
-        
-        // Populate standard select element
-        const select = document.getElementById("service_id");
-        select.innerHTML = state.services.map(s => `<option value="${s.id}">${s.title}</option>`).join("");
 
-        // Render Service cards grid with preserve-3d structure
-        const grid = document.getElementById("servicesGrid");
-        grid.innerHTML = state.services.map(s => {
-          const iconName = iconMap[s.icon] || 'zap';
-          return `
-            <div class="service-card glass rounded-[1.75rem] p-6 cursor-pointer flex flex-col justify-between tilt-3d" id="card-${s.id}" data-id="${s.id}">
-              <div>
-                <div class="w-12 h-12 rounded-2xl bg-blue-600/10 text-blue-400 border border-blue-500/20 flex items-center justify-center mb-5 depth-icon transition-transform">
-                  <i data-lucide="${iconName}" class="w-5.5 h-5.5"></i>
-                </div>
-                <h3 class="text-lg font-bold text-white mb-2 depth-title leading-snug">${s.title}</h3>
-                <p class="text-xs text-slate-400 line-clamp-3 leading-relaxed depth-desc">${s.description}</p>
-              </div>
-              <div class="mt-5 pt-4 border-t border-white/5 flex justify-between items-center depth-badge">
-                <span class="text-[10px] text-slate-500 flex items-center gap-1">
-                  <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i> ${s.duration}
-                </span>
-                <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded">₹${s.price_from} <span class="text-[9px] text-slate-500 font-normal">onwards</span></span>
-              </div>
+        const sel = document.getElementById('service_id');
+        sel.innerHTML = state.services.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
+
+        const grid = document.getElementById('servicesGrid');
+        grid.innerHTML = state.services.map(s => `
+          <div class="service-card p-4 flex flex-col gap-2" id="card-${s.id}" data-id="${s.id}">
+            <div class="w-9 h-9 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-500/15 flex items-center justify-center">
+              <i data-lucide="${iconMap[s.icon]||'zap'}" class="w-4 h-4"></i>
             </div>
-          `;
-        }).join("");
+            <p class="text-sm font-bold text-white leading-snug">${s.title}</p>
+            <p class="text-xs text-slate-400 line-clamp-2">${s.description}</p>
+            <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
+              <span class="text-[10px] text-slate-500">${s.duration}</span>
+              <span class="text-xs font-bold text-blue-400">₹${s.price_from}+</span>
+            </div>
+          </div>`).join('');
 
-        // Setup click select handlers on cards
-        document.querySelectorAll(".service-card").forEach(card => {
-          card.addEventListener("click", () => {
-            const id = card.getAttribute("data-id");
-            selectService(id);
-          });
+        document.querySelectorAll('.service-card').forEach(c => {
+          c.addEventListener('click', () => selectService(c.getAttribute('data-id')));
         });
+        sel.addEventListener('change', e => selectService(e.target.value));
 
-        // Dropdown synchronization
-        select.addEventListener("change", (e) => {
-          selectService(e.target.value);
-        });
+        const wp = data.whatsapp || '9454386338';
+        document.getElementById('whatsappLabel').textContent = `+91 ${wp}`;
+        document.getElementById('whatsappBtn').href = `https://wa.me/91${wp}?text=Hello%20EVOLT%2C%20I%20need%20urgent%20electrical%20help.`;
 
-        if (state.services.length > 0) {
-          selectService(state.services[0].id);
-        }
-
-        // WhatsApp Details
-        const wpNum = data.whatsapp || "9454386338";
-        document.getElementById("whatsappLabel").textContent = `+91 ${wpNum}`;
-        document.getElementById("whatsappBtn").href = `https://wa.me/91${wpNum}?text=Hello%20EVOLT%20Support,%20I%20need%20urgent%20electrical%20assistance.`;
-
-        // Render Icons
+        if (state.services.length) selectService(state.services[0].id);
         lucide.createIcons();
-        
-        // Initialize 3D tilting animations
-        apply3DTilt(".service-card", 8);
-        apply3DTilt("#bookingFormContainer", 25);
-        apply3DTilt("#emergencyCard", 20);
-
-      } catch (err) {
-        console.error("Could not load services:", err);
-        const grid = document.getElementById("servicesGrid");
-        if (grid) {
-          grid.innerHTML = `<div class="col-span-full text-center text-red-400 py-8">Could not load services. Please refresh the page.</div>`;
-        }
+      } catch (e) {
+        console.error('loadServices error:', e);
       }
     }
 
-    function selectService(serviceId) {
-      const select = document.getElementById("service_id");
-      select.value = serviceId;
-
-      document.querySelectorAll(".service-card").forEach(c => {
-        if (c.getAttribute("data-id") === serviceId) {
-          c.classList.add("active");
-          c.style.transform = "perspective(1000px) translateZ(10px) scale(1.02)";
-        } else {
-          c.classList.remove("active");
-          c.style.transform = "perspective(1000px) translateZ(0px) scale(1)";
-        }
+    function selectService(id) {
+      document.getElementById('service_id').value = id;
+      document.querySelectorAll('.service-card').forEach(c => {
+        c.classList.toggle('selected', c.getAttribute('data-id') === id);
       });
     }
 
     function updateMap() {
-      const locText = document.getElementById("locText");
-      const mapsLink = document.getElementById("mapsLink");
-      const mapFrame = document.getElementById("mapFrame");
-      const mapContainer = document.getElementById("mapFrameContainer");
-      
-      if (state.latitude == null || state.longitude == null) return;
-      
-      const query = `${state.latitude},${state.longitude}`;
-      const mapsUrl = `https://www.google.com/maps?q=${query}`;
-      
-      locText.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> GPS Captured: ${query}`;
-      mapsLink.href = mapsUrl;
-      mapsLink.classList.remove("hidden");
-      
-      mapFrame.src = `https://maps.google.com/maps?q=${query}&z=15&output=embed`;
-      mapContainer.classList.remove("hidden");
+      if (state.lat == null || state.lng == null) return;
+      const q = `${state.lat},${state.lng}`;
+      document.getElementById('locText').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> ${q}`;
+      const ml = document.getElementById('mapsLink');
+      ml.href = `https://www.google.com/maps?q=${q}`;
+      ml.classList.remove('hidden');
+      document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${q}&z=15&output=embed`;
+      document.getElementById('mapFrameContainer').classList.remove('hidden');
     }
 
-    // Geolocation Capturing Action
-    document.getElementById("locBtn").addEventListener("click", () => {
-      const locText = document.getElementById("locText");
-      locText.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span> Seeking permission...`;
-      
-      if (!navigator.geolocation) {
-        locText.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> GPS not supported.`;
-        return;
-      }
-      
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          state.latitude = Number(pos.coords.latitude.toFixed(6));
-          state.longitude = Number(pos.coords.longitude.toFixed(6));
-          updateMap();
-        },
-        (err) => {
-          let msg = "Permission denied. Allow GPS location access.";
-          if (err && err.code === 2) msg = "GPS location coordinates unavailable.";
-          if (err && err.code === 3) msg = "Position retrieval timed out.";
-          locText.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> ${msg}`;
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
+    document.getElementById('locBtn').addEventListener('click', () => {
+      document.getElementById('locText').innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Requesting…`;
+      if (!navigator.geolocation) { document.getElementById('locText').textContent = 'GPS not supported.'; return; }
+      navigator.geolocation.getCurrentPosition(p => {
+        state.lat = +p.coords.latitude.toFixed(6);
+        state.lng = +p.coords.longitude.toFixed(6);
+        updateMap();
+      }, err => {
+        const msgs = { 1:'Permission denied. Allow location.', 2:'Location unavailable.', 3:'Request timed out.' };
+        document.getElementById('locText').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> ${msgs[err.code]||'Error.'}`;
+      }, { enableHighAccuracy: true, timeout: 10000 });
     });
 
-    // Manual input coords
-    document.getElementById("manualLocBtn").addEventListener("click", () => {
-      const lat = parseFloat(document.getElementById("manualLat").value);
-      const lng = parseFloat(document.getElementById("manualLng").value);
-      const locText = document.getElementById("locText");
-      
-      if (Number.isNaN(lat) || Number.isNaN(lng)) {
-        locText.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Invalid inputs.`;
-        return;
-      }
-      
-      state.latitude = Number(lat.toFixed(6));
-      state.longitude = Number(lng.toFixed(6));
+    document.getElementById('manualLocBtn').addEventListener('click', () => {
+      const lat = parseFloat(document.getElementById('manualLat').value);
+      const lng = parseFloat(document.getElementById('manualLng').value);
+      if (isNaN(lat) || isNaN(lng)) { document.getElementById('locText').textContent = 'Enter valid coordinates.'; return; }
+      state.lat = +lat.toFixed(6);
+      state.lng = +lng.toFixed(6);
       updateMap();
     });
 
-    // Form Submit
-    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+    document.getElementById('bookingForm').addEventListener('submit', async e => {
       e.preventDefault();
-      
-      const serviceId = document.getElementById("service_id").value;
-      const service = state.services.find(s => s.id === serviceId);
-      
+      const sid = document.getElementById('service_id').value;
+      const svc = state.services.find(s => s.id === sid);
       const payload = {
-        customer_name: document.getElementById("customer_name").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        email: document.getElementById("email").value.trim() || undefined,
-        service_id: serviceId,
-        service_title: service ? service.title : serviceId,
-        address: document.getElementById("address").value.trim(),
-        city: document.getElementById("city").value.trim() || undefined,
-        pincode: document.getElementById("pincode").value.trim() || undefined,
-        preferred_time: document.getElementById("preferred_time").value.trim() || undefined,
-        notes: document.getElementById("notes").value.trim() || undefined,
+        customer_name: document.getElementById('customer_name').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        email: document.getElementById('email').value.trim() || undefined,
+        service_id: sid,
+        service_title: svc ? svc.title : sid,
+        address: document.getElementById('address').value.trim(),
+        city: document.getElementById('city').value.trim() || undefined,
+        pincode: document.getElementById('pincode').value.trim() || undefined,
+        preferred_time: document.getElementById('preferred_time').value.trim() || undefined,
+        notes: document.getElementById('notes').value.trim() || undefined,
+        latitude: state.lat,
+        longitude: state.lng,
       };
-      if (state.latitude != null && state.longitude != null) {
-        payload.latitude = state.latitude;
-        payload.longitude = state.longitude;
-      }
 
-      const result = document.getElementById("result");
-      result.textContent = "Booking technician on 3D blockchain database...";
-      result.className = "mt-4 text-center rounded-xl p-4 text-sm font-semibold block bg-slate-900 border border-blue-500/20 text-blue-400";
-      result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const res = document.getElementById('result');
+      res.textContent = 'Submitting…';
+      res.className = 'block mt-4 rounded-xl p-4 text-sm text-center font-semibold bg-slate-900 border border-blue-500/20 text-blue-400';
 
       try {
-        const resp = await fetch("/api/bookings", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const data = await resp.json();
-        
-        if (!resp.ok) throw new Error(data.detail || "Booking transaction failed");
-        
-        result.innerHTML = `
-          <div class="flex flex-col gap-2 items-center">
-            <span class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30"><i data-lucide="check"></i></span>
-            <span class="text-white text-base">Booking Confirmed!</span>
-            <span class="text-xs text-slate-400">Booking ID: <strong class="text-blue-400 font-mono select-all">${data.booking_id}</strong></span>
-          </div>
-        `;
-        result.className = "mt-4 text-center rounded-xl p-5 text-sm block bg-slate-900 border border-emerald-500/30";
-        lucide.createIcons();
-        
-        // Reset form and UI
-        e.target.reset();
-        state.latitude = null;
-        state.longitude = null;
-        
-        document.getElementById("mapFrameContainer").classList.add("hidden");
-        document.getElementById("locText").innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span> Location not shared yet`;
-        document.getElementById("mapsLink").classList.add("hidden");
-        
-        if (state.services.length > 0) {
-          selectService(state.services[0].id);
-        }
+        const r = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.detail || 'Booking failed');
 
+        res.innerHTML = `<p class="text-emerald-400 text-base mb-1">✓ Booking Confirmed!</p><p class="text-xs text-slate-400">ID: <strong class="text-blue-400 font-mono select-all">${d.booking_id}</strong></p>`;
+        res.className = 'block mt-4 rounded-xl p-4 text-sm text-center bg-slate-900 border border-emerald-500/30';
+
+        e.target.reset();
+        state.lat = null; state.lng = null;
+        document.getElementById('mapFrameContainer').classList.add('hidden');
+        document.getElementById('locText').innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-600"></span> Not shared yet`;
+        document.getElementById('mapsLink').classList.add('hidden');
+        if (state.services.length) selectService(state.services[0].id);
       } catch (err) {
-        result.innerHTML = `
-          <div class="flex items-center justify-center gap-2">
-            <i data-lucide="alert-circle" class="w-4 h-4"></i>
-            <span>Error: ${err.message}</span>
-          </div>
-        `;
-        result.className = "mt-4 text-center rounded-xl p-4 text-sm block bg-slate-900 border border-red-500/30 text-red-400";
-        lucide.createIcons();
+        res.innerHTML = `<span class="text-red-400">✗ ${err.message}</span>`;
+        res.className = 'block mt-4 rounded-xl p-4 text-sm text-center bg-slate-900 border border-red-500/30';
       }
     });
 
