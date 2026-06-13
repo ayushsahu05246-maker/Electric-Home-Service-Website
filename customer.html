@@ -240,9 +240,6 @@
     .service-card:hover .svc-icon, .service-card.selected .svc-icon { transform: scale(1.1); }
     .svc-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
     .svc-desc { font-size: 12px; color: var(--text3); line-height: 1.5; margin-bottom: 14px; }
-    .svc-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
-    .svc-price { font-size: 13px; font-weight: 700; color: var(--accent); }
-    .svc-time { font-size: 11px; color: var(--text3); }
 
     .selected-check {
       position: absolute; top: 12px; right: 12px;
@@ -705,28 +702,7 @@
           <p id="whatsappLabel" style="text-align:center;font-size:11px;color:var(--text3);margin-top:10px;"></p>
         </div>
 
-        <!-- Price Estimator -->
-        <div class="sidebar-card price-card">
-          <div class="price-title">💰 Price Estimate</div>
-          <div id="priceRows">
-            <div class="price-row">
-              <span class="price-label">Service starts from</span>
-              <span class="price-val accent" id="priceFrom">—</span>
-            </div>
-            <div class="price-row">
-              <span class="price-label">Typical duration</span>
-              <span class="price-val" id="priceDuration">—</span>
-            </div>
-            <div class="price-row">
-              <span class="price-label">Visit charge</span>
-              <span class="price-val">₹0 (Free)</span>
-            </div>
-            <div class="price-row">
-              <span class="price-label">Hidden charges</span>
-              <span class="price-val" style="color:var(--green)">None ✓</span>
-            </div>
-          </div>
-        </div>
+
 
         <!-- Guarantees -->
         <div class="sidebar-card">
@@ -842,10 +818,7 @@ async function loadServices() {
         <div class="svc-icon">${iconMap[s.icon] || '⚡'}</div>
         <div class="svc-name">${s.title}</div>
         <div class="svc-desc">${s.description}</div>
-        <div class="svc-footer">
-          <span class="svc-time">${s.duration}</span>
-          <span class="svc-price">₹${s.price_from}+ <span style="font-size:10px;opacity:0.7;">→ Book</span></span>
-        </div>
+
       </div>`).join('');
 
     sel.addEventListener('change', e => selectService(e.target.value));
@@ -863,11 +836,7 @@ function selectService(id, scroll) {
   document.querySelectorAll('.service-card').forEach(c => {
     c.classList.toggle('selected', c.getAttribute('data-id') === id);
   });
-  const svc = state.services.find(s => s.id === id);
-  if (svc) {
-    document.getElementById('priceFrom').textContent = `₹${svc.price_from}+`;
-    document.getElementById('priceDuration').textContent = svc.duration;
-  }
+
   if (scroll) {
     document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
     const sel = document.getElementById('service_id');
