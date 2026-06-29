@@ -29,9 +29,13 @@ db_name = os.environ.get('DB_NAME', 'electric_service')
 client = (
     AsyncIOMotorClient(
         mongo_url,
-        serverSelectionTimeoutMS=3000,
-        connectTimeoutMS=3000,
-        socketTimeoutMS=3000,
+        serverSelectionTimeoutMS=8000,
+        connectTimeoutMS=8000,
+        socketTimeoutMS=10000,
+        tls=True,
+        tlsAllowInvalidCertificates=False,
+        retryWrites=True,
+        w="majority",
     )
     if mongo_url
     else None
@@ -45,8 +49,10 @@ WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER', '9454386338')
 ADMIN_PORTAL_PIN = os.environ.get('ADMIN_PORTAL_PIN', '1234')
 ADMIN_SESSION_SECRET = os.environ.get('ADMIN_SESSION_SECRET', ADMIN_PORTAL_PIN)
 COOKIE_SECURE = os.environ.get('RENDER', '') == 'true' or os.environ.get('COOKIE_SECURE', '').lower() == 'true'
+IS_PRODUCTION = os.environ.get('RENDER', '').lower() == 'true'
 ADMIN_SESSION_MAX_AGE = 7 * 24 * 60 * 60
 BOOKINGS_FILE = ROOT_DIR / "bookings.local.json"
+MONGO_SAVE_RETRIES = 3
 
 if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
@@ -97,15 +103,38 @@ async def _get_mongo_bookings() -> list[dict]:
     if db is None:
         return []
     try:
-        return await db.bookings.find({}, {'_id': 0}).sort('created_at', -1).to_list(2000)
+        return await db.bookings.find({}, {'_id': 0}).sort('created_at', -1).to_list(5000)
     except PyMongoError as e:
         logger.error("Could not load bookings from MongoDB: %s", e)
         return []
 
 
+async def _save_booking_to_mongo(doc: dict) -> bool:
+    """Persist booking permanently in MongoDB with retries + upsert."""
+    if db is None:
+        return False
+    payload = doc.copy()
+    payload.pop('_id', None)
+    for attempt in range(1, MONGO_SAVE_RETRIES + 1):
+        try:
+            await db.bookings.replace_one(
+                {'booking_id': payload['booking_id']},
+                payload,
+                upsert=True,
+            )
+            return True
+        except PyMongoError as e:
+            logger.error("MongoDB save attempt %s/%s failed: %s", attempt, MONGO_SAVE_RETRIES, e)
+            if attempt < MONGO_SAVE_RETRIES:
+                await asyncio.sleep(1.5 * attempt)
+    return False
+
+
 async def _get_all_bookings() -> list[dict]:
-    local_items = _load_local_bookings()
     mongo_items = await _get_mongo_bookings()
+    if IS_PRODUCTION:
+        return mongo_items
+    local_items = _load_local_bookings()
     return _merge_bookings(local_items, mongo_items)
 
 
@@ -115,18 +144,22 @@ async def _sync_local_bookings_to_mongo() -> None:
     local_items = _load_local_bookings()
     if not local_items:
         return
-    try:
-        existing_ids = {
-            doc.get("booking_id")
-            async for doc in db.bookings.find({}, {"booking_id": 1, "_id": 0})
-        }
-        for item in local_items:
-            booking_id = item.get("booking_id")
-            if booking_id and booking_id not in existing_ids:
-                await db.bookings.insert_one(item.copy())
-                existing_ids.add(booking_id)
-    except PyMongoError as e:
-        logger.error("Could not sync local bookings to MongoDB: %s", e)
+    synced = 0
+    for item in local_items:
+        booking_id = item.get("booking_id")
+        if not booking_id:
+            continue
+        try:
+            await db.bookings.replace_one(
+                {'booking_id': booking_id},
+                item.copy(),
+                upsert=True,
+            )
+            synced += 1
+        except PyMongoError as e:
+            logger.error("Could not sync booking %s to MongoDB: %s", booking_id, e)
+    if synced:
+        logger.info("Synced %s local booking(s) to MongoDB", synced)
 
 
 def _create_admin_token() -> str:
@@ -164,37 +197,31 @@ async def _mongo_ping_ok() -> bool:
 async def _update_booking_status(booking_id: str, status: str) -> dict:
     updated: Optional[dict] = None
 
-    local_items = _load_local_bookings()
-    for idx, item in enumerate(local_items):
-        if item.get("booking_id") == booking_id:
-            local_items[idx]["status"] = status
-            updated = local_items[idx].copy()
-            _save_local_bookings(local_items)
-            break
-
     if db is not None:
         try:
-            res = await db.bookings.find_one_and_update(
-                {"booking_id": booking_id},
-                {"$set": {"status": status}},
-                return_document=True,
-                projection={"_id": 0},
-            )
-            if res:
-                updated = res
-                local_items = _load_local_bookings()
-                for idx, item in enumerate(local_items):
-                    if item.get("booking_id") == booking_id:
-                        local_items[idx]["status"] = status
-                        _save_local_bookings(local_items)
-                        break
-            elif updated:
-                await db.bookings.insert_one(updated)
+            existing = await db.bookings.find_one({'booking_id': booking_id}, {'_id': 0})
+            if existing:
+                existing['status'] = status
+                await db.bookings.replace_one({'booking_id': booking_id}, existing, upsert=True)
+                updated = existing
         except PyMongoError as e:
             logger.error("Could not update booking in MongoDB: %s", e)
-            if updated:
-                return updated
-            raise HTTPException(503, "Database unavailable")
+            if IS_PRODUCTION:
+                raise HTTPException(503, "Database unavailable")
+
+    if not IS_PRODUCTION:
+        local_items = _load_local_bookings()
+        for idx, item in enumerate(local_items):
+            if item.get("booking_id") == booking_id:
+                local_items[idx]["status"] = status
+                updated = local_items[idx].copy()
+                _save_local_bookings(local_items)
+                break
+        if updated and db is not None and not await _mongo_ping_ok():
+            try:
+                await db.bookings.replace_one({'booking_id': booking_id}, updated, upsert=True)
+            except PyMongoError:
+                pass
 
     if not updated:
         raise HTTPException(404, "Booking not found")
@@ -358,10 +385,14 @@ async def root():
 async def health_check():
     mongo_ok = await _mongo_ping_ok()
     items = await _get_all_bookings()
+    mongo_count = len(await _get_mongo_bookings()) if mongo_ok else 0
     return {
         'status': 'ok',
         'mongodb': 'connected' if mongo_ok else 'unavailable',
+        'storage': 'mongodb' if (IS_PRODUCTION and mongo_ok) else ('local_fallback' if not IS_PRODUCTION else 'mongodb_required'),
         'bookings_total': len(items),
+        'bookings_in_mongodb': mongo_count,
+        'production': IS_PRODUCTION,
     }
 
 
@@ -378,21 +409,22 @@ async def create_booking(payload: BookingCreate):
     doc['status'] = 'pending'
     doc['created_at'] = datetime.now(timezone.utc).isoformat()
     save_doc = doc.copy()
-
-    if db is not None:
-        try:
-            await db.bookings.insert_one(save_doc)
-        except PyMongoError as e:
-            logger.error("Booking save to MongoDB failed: %s", e)
-
     save_doc.pop('_id', None)
 
-    local_items = _load_local_bookings()
-    local_items.insert(0, save_doc.copy())
-    _save_local_bookings(local_items)
+    mongo_saved = await _save_booking_to_mongo(save_doc)
 
-    if db is not None:
-        asyncio.create_task(_sync_local_bookings_to_mongo())
+    if IS_PRODUCTION:
+        if not mongo_saved:
+            raise HTTPException(
+                status_code=503,
+                detail="Database unavailable. Booking was NOT saved. Please try again in a moment.",
+            )
+    else:
+        local_items = _load_local_bookings()
+        local_items.insert(0, save_doc.copy())
+        _save_local_bookings(local_items)
+        if db is not None and not mongo_saved:
+            asyncio.create_task(_sync_local_bookings_to_mongo())
 
     asyncio.create_task(send_admin_email(save_doc))
     return Booking(**save_doc)
@@ -528,6 +560,30 @@ async def admin_me(_: dict = Depends(require_admin_access)):
     return {"ok": True}
 
 
+@api_router.post("/admin/cleanup")
+async def admin_cleanup(_: dict = Depends(require_admin_access)):
+    """Delete expired sessions and orphaned data"""
+    cleanup_stats = {
+        'expired_sessions_deleted': 0,
+        'status': 'ok'
+    }
+    
+    if db is not None:
+        try:
+            # Delete expired user sessions
+            result = await db.user_sessions.delete_many({
+                'expires_at': {
+                    '$lt': datetime.now(timezone.utc).isoformat()
+                }
+            })
+            cleanup_stats['expired_sessions_deleted'] = result.deleted_count
+        except PyMongoError as e:
+            logger.error("Cleanup failed: %s", e)
+            cleanup_stats['status'] = 'partial_error'
+    
+    return cleanup_stats
+
+
 app.include_router(api_router)
 
 @app.get("/")
@@ -549,10 +605,13 @@ async def serve_admin_frontend():
 async def head_admin_frontend():
     return Response(status_code=200)
 
+cors_origins = os.environ.get('CORS_ORIGINS', '*')
+cors_origins_list = [origin.strip() for origin in cors_origins.split(',')] if cors_origins != '*' else ['*']
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=cors_origins_list,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -560,10 +619,23 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_sync_bookings():
+    if db is not None:
+        try:
+            await db.bookings.create_index('booking_id', unique=True)
+            await db.bookings.create_index('created_at')
+            logger.info("MongoDB booking indexes ready")
+        except PyMongoError as e:
+            logger.error("Could not create MongoDB indexes: %s", e)
     await _sync_local_bookings_to_mongo()
+    mongo_ok = await _mongo_ping_ok()
+    if IS_PRODUCTION and not mongo_ok:
+        logger.error("PRODUCTION WARNING: MongoDB is not connected. Bookings will NOT be saved permanently!")
+    elif mongo_ok:
+        count = len(await _get_mongo_bookings())
+        logger.info("MongoDB connected. %s booking(s) in permanent storage.", count)
 
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
     if client is not None:
-        client.close()
+        client.close() 
