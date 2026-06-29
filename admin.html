@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EVOLT Admin Dashboard</title>
+  <title>One Day Electric — Admin Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -22,9 +22,10 @@
     }
 
     .gradient-text {
-      background: linear-gradient(135deg,#60a5fa,#3b82f6,#22d3ee);
+      background: linear-gradient(135deg,#f5a623,#ff6b35,#ffd166);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .field {
@@ -39,14 +40,14 @@
       outline: none;
     }
     .field:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59,130,246,.18);
+      border-color: #f5a623;
+      box-shadow: 0 0 0 3px rgba(245,166,35,.18);
     }
     .field::placeholder { color: #475569; }
 
     .btn-primary {
-      background: linear-gradient(135deg,#2563eb,#0ea5e9);
-      color: #fff; font-weight: 700; padding: .875rem 1.5rem;
+      background: linear-gradient(135deg,#f5a623,#ff6b35);
+      color: #000; font-weight: 700; padding: .875rem 1.5rem;
       border-radius: .875rem; border: none; cursor: pointer;
       transition: opacity .2s, transform .15s;
       display: flex; align-items: center; justify-content: center; gap: .5rem;
@@ -92,7 +93,7 @@
       color: #64748b; border: 1px solid transparent;
     }
     .filter-tab:hover { color: #94a3b8; }
-    .filter-tab.active { background: rgba(59,130,246,.15); color: #93c5fd; border-color: rgba(59,130,246,.25); }
+    .filter-tab.active { background: rgba(245,166,35,.15); color: #fbbf24; border-color: rgba(245,166,35,.25); }
 
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #030712; }
@@ -140,12 +141,12 @@
   <header class="relative z-10 sticky top-0 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
     <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30">
-          <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+          <i data-lucide="zap" class="w-5 h-5 text-white font-bold"></i>
         </div>
         <div>
-          <p class="font-black text-xl text-white leading-none">EVOLT</p>
-          <p class="text-[10px] font-semibold text-blue-400 tracking-widest leading-none uppercase">Admin</p>
+          <p class="font-black text-sm text-white leading-none">One Day Electric</p>
+          <p class="text-[10px] font-semibold text-orange-400 tracking-widest leading-none uppercase">Admin Portal</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -165,11 +166,11 @@
     <section id="loginScreen" class="flex items-center justify-center flex-grow">
       <div class="card p-8 w-full max-w-sm" id="loginCard">
         <div class="text-center mb-6">
-          <div class="w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto mb-4">
+          <div class="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center mx-auto mb-4">
             <i data-lucide="lock" class="w-7 h-7"></i>
           </div>
-          <h2 class="text-xl font-bold text-white">Admin Access</h2>
-          <p class="text-xs text-slate-400 mt-1">Enter your portal PIN to continue</p>
+          <h2 class="text-xl font-bold text-white">One Day Electric Admin</h2>
+          <p class="text-xs text-slate-400 mt-1">Enter your PIN to access the booking dashboard</p>
         </div>
         <div class="space-y-4">
           <div>
@@ -262,8 +263,12 @@
       try {
         const d = new Date(iso);
         if (isNaN(d)) return iso;
-        const p = n => String(n).padStart(2,'0');
-        return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+        // Display in IST (India Standard Time, UTC+5:30)
+        return d.toLocaleString('en-IN', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric', month: 'short', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: true
+        });
       } catch { return iso; }
     }
 
@@ -411,6 +416,7 @@
                 <p class="font-bold text-white text-sm mt-0.5">${b.service_title||'-'}</p>
                 <p class="text-xs text-slate-400 mt-0.5 truncate max-w-xs">${b.address||'-'}</p>
                 <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">${b.city||''} ${b.pincode||''}</p>
+                ${b.notes ? `<p class="text-[10px] text-amber-400/70 mt-0.5 max-w-xs line-clamp-1">📝 ${b.notes}</p>` : ''}
               </div>
             </div>
 
@@ -423,6 +429,7 @@
               <a href="${waLink}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold transition">
                 <i data-lucide="message-square" class="w-3 h-3"></i> WhatsApp
               </a>
+              ${b.email ? `<a href="mailto:${b.email}" class="text-xs text-blue-300 hover:text-blue-200 flex items-center gap-1 transition"><i data-lucide="mail" class="w-3 h-3"></i> ${b.email}</a>` : '<span class="text-[10px] text-slate-600 flex items-center gap-1"><i data-lucide="mail" class="w-3 h-3"></i> No email</span>'}
               ${b.preferred_time ? `<p class="text-[10px] text-slate-500 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${b.preferred_time}</p>` : ''}
             </div>
 
